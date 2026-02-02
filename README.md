@@ -20,13 +20,14 @@ This project is built on the absolute cutting edge of the React ecosystem:
 - **Experience Hub:** An interactive, accordion-style booking interface for tours, seasonal events, and lifestyle experiences, optimized for conversion.
 
 ## **📂 Project Structure**
-
-> src/
-> ├── app/ # Next.js 16 App Router & Global Styles (Tailwind 4)
-> ├── components/
-> │ ├── layout/ # Major sections (Hero, Navbar, Footer, TheCellar)
-> │ └── ui/ # Atomic components (CustomCursor, Reveal, Buttons)
-> └── lib/ # Utility functions and shared logic
+```
+src/
+├── app/ # Next.js 16 App Router & Global Styles (Tailwind 4)
+├── components/
+│ ├── layout/ # Major sections (Hero, Navbar, Footer, TheCellar)
+│ └── ui/ # Atomic components (CustomCursor, Reveal, Buttons)
+└── lib/ # Utility functions and shared logic
+```
 
 ## **🛠️ Installation**
 
