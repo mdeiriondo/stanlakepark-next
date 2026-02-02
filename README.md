@@ -1,36 +1,63 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+Stanlake Park Wine Estate - Reimagined 🍷
 
-## Getting Started
+A high-end digital experience redesign for Stanlake Park Wine Estate, merging historical heritage with a modern luxury interface ("Modern Heritage").
 
-First, run the development server:
+🚀 Technical Excellence
 
-```bash
+This project is built on the absolute cutting edge of the React ecosystem:
+
+Framework: Next.js 16.1.6 (App Router) using Turbopack for ultra-fast development cycles.
+
+Styling Engine: Tailwind CSS 4.0 (CSS-first engine), providing a zero-runtime CSS footprint.
+
+Animations: Custom-built "Reveal" system using the Intersection Observer API and native CSS transitions for maximum performance.
+
+Typography: Playfair Display (Serif) for editorial elegance and Inter (Sans) for modern legibility.
+
+Icons: Lucide React for a clean, consistent iconography.
+
+✨ Key Design Features
+
+Luxury Editorial Hero: A split-screen experience featuring the historic "1166" brand mark and cinematic Ken Burns imagery.
+
+Fluid Custom Cursor: A sophisticated "Ring & Dot" pointer with mix-blend-mode: difference, ensuring high visibility and brand personality across all screen sections.
+
+Winery/Wedding Duality: Seamless atmosphere switching, adapting the UI from a warm winery palette to a clean, ethereal wedding aesthetic.
+
+Experience Hub: An interactive, accordion-style booking interface for tours, seasonal events, and lifestyle experiences.
+
+📂 Project Structure
+
+src/
+├── app/ # Next.js 16 App Router & Global Styles (Tailwind 4)
+├── components/
+│ ├── layout/ # Major sections (Hero, Navbar, Footer, TheCellar)
+│ └── ui/ # Atomic components (CustomCursor, Reveal, Buttons)
+└── lib/ # Utility functions and shared logic
+
+🛠️ Installation
+
+# Clone the repository
+
+git clone [https://github.com/your-username/stanlake-park-redesign.git](https://github.com/your-username/stanlake-park-redesign.git)
+
+# Install dependencies
+
+npm install
+
+# Run development server with Turbopack
+
 npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
-```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+🌐 Deployment
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+Optimized for Vercel, leveraging Next.js 16's advanced caching and performance features for instantaneous global delivery.
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+✍️ Credits
 
-## Learn More
+Lead Designer: [MdI]
 
-To learn more about Next.js, take a look at the following resources:
+Technical Implementation: [Gemini]
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
-
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
-
-## Deploy on Vercel
-
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
-
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+Designed with attention to detail and respect for tradition.
+Stanlake Park Wine Estate - Reimagined.

@@ -1,26 +1,142 @@
 @import "tailwindcss";
 
-:root {
-  --background: #ffffff;
-  --foreground: #171717;
-}
+/* CONFIGURACIÓN DEL TEMA */
+@theme {
+  --color-brand: #760235;
+  --color-brand-dark: #5a0128;
+  --color-cream: #f2f0e9;
+  --color-dark: #0a0a0a;
+  --color-gold: #c5a059;
 
-@theme inline {
-  --color-background: var(--background);
-  --color-foreground: var(--foreground);
-  --font-sans: var(--font-geist-sans);
-  --font-mono: var(--font-geist-mono);
-}
+  --font-serif: var(--font-playfair), ui-serif, Georgia, serif;
+  --font-sans: var(--font-inter), ui-sans-serif, system-ui, sans-serif;
 
-@media (prefers-color-scheme: dark) {
-  :root {
-    --background: #0a0a0a;
-    --foreground: #ededed;
+  --animate-ken-burns: kenburns 40s ease-in-out infinite alternate;
+
+  @keyframes kenburns {
+    0% {
+      transform: scale(1);
+    }
+    100% {
+      transform: scale(1.15);
+    }
   }
 }
 
-body {
-  background: var(--background);
-  color: var(--foreground);
-  font-family: Arial, Helvetica, sans-serif;
+/* 1. REGLA NUCLEAR DE CURSOR (Fuera de capas, prioridad absoluta) */
+@media (min-width: 768px) {
+  html,
+  body {
+    cursor: none !important;
+  }
+
+  *,
+  *::before,
+  *::after {
+    cursor: none !important;
+  }
+
+  /* Excepción para inputs de texto si quieres poder ver la barra de escritura */
+  input[type="text"],
+  input[type="email"],
+  textarea {
+    cursor: text !important;
+  }
+}
+
+@layer base {
+  body {
+    background-color: white;
+    color: var(--color-dark);
+    font-family: var(--font-sans);
+    -webkit-font-smoothing: antialiased;
+  }
+
+  h1,
+  h2,
+  h3,
+  h4,
+  h5,
+  h6 {
+    font-family: var(--font-serif);
+  }
+}
+
+@layer utilities {
+  .no-scrollbar::-webkit-scrollbar {
+    display: none;
+  }
+  .no-scrollbar {
+    -ms-overflow-style: none;
+    scrollbar-width: none;
+  }
+}
+
+/* Scrollbar */
+::-webkit-scrollbar {
+  width: 6px;
+}
+::-webkit-scrollbar-track {
+  background: #f1f1f1;
+}
+::-webkit-scrollbar-thumb {
+  background: var(--color-brand);
+}
+
+/* Cursor base */
+.custom-cursor {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 18px;
+  height: 18px;
+  margin-left: -9px;
+  margin-top: -9px;
+
+  border-radius: 50%;
+  background: white;
+
+  pointer-events: none;
+  z-index: 9999;
+
+  mix-blend-mode: difference;
+
+  transform-origin: center;
+  transition:
+    width 0.35s cubic-bezier(0.22, 1, 0.36, 1),
+    height 0.35s cubic-bezier(0.22, 1, 0.36, 1),
+    margin 0.35s cubic-bezier(0.22, 1, 0.36, 1),
+    background-color 0.3s ease;
+}
+
+/* Estado activo (hover sobre clickable) */
+.custom-cursor.cursor--active {
+  width: 64px;
+  height: 64px;
+  margin-left: -32px;
+  margin-top: -32px;
+
+  background: rgba(255, 255, 255, 0.9);
+}
+
+/* Solo desktop */
+@media (max-width: 767px) {
+  .custom-cursor {
+    display: none;
+  }
+}
+
+/* Ocultar cursor nativo */
+@media (min-width: 768px) {
+  html,
+  body,
+  *,
+  a,
+  button,
+  input,
+  textarea,
+  select,
+  .cursor-pointer {
+    cursor: none !important;
+  }
 }

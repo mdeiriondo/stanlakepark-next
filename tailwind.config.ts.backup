@@ -1,0 +1,41 @@
+import type { Config } from "tailwindcss";
+
+const config: Config = {
+  // Aquí le decimos a Tailwind DÓNDE buscar tus clases.
+  // Al poner "./src/**/*.{...}", cubrimos todas las subcarpetas (ui, layout, app).
+  content: ["./src/**/*.{js,ts,jsx,tsx,mdx}"],
+  theme: {
+    extend: {
+      colors: {
+        brand: {
+          DEFAULT: "#760235",
+          dark: "#5a0128",
+        },
+        cream: "#F2F0E9",
+        dark: "#0a0a0a",
+        gold: "#C5A059",
+      },
+      fontFamily: {
+        serif: ["var(--font-playfair)", "serif"],
+        sans: ["var(--font-inter)", "sans-serif"],
+      },
+      animation: {
+        "ken-burns":
+          "kenburns 40s infinite alternate cubic-bezier(0.25, 0.46, 0.45, 0.94)",
+        "fade-in": "fadeIn 1s ease-out forwards",
+      },
+      keyframes: {
+        kenburns: {
+          "0%": { transform: "scale(1)" },
+          "100%": { transform: "scale(1.15)" },
+        },
+        fadeIn: {
+          "0%": { opacity: "0" },
+          "100%": { opacity: "1" },
+        },
+      },
+    },
+  },
+  plugins: [],
+};
+export default config;
