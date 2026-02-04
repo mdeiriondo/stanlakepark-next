@@ -23,22 +23,19 @@
   }
 }
 
-/* 1. REGLA NUCLEAR DE CURSOR (Fuera de capas, prioridad absoluta) */
+/* 1. OCULTAR CURSOR DEL SISTEMA - Enfoque simplificado */
 @media (min-width: 768px) {
-  html,
-  body {
+  * {
     cursor: none !important;
   }
 
-  *,
-  *::before,
-  *::after {
-    cursor: none !important;
-  }
-
-  /* Excepción para inputs de texto si quieres poder ver la barra de escritura */
+  /* Excepción para inputs de texto */
   input[type="text"],
   input[type="email"],
+  input[type="password"],
+  input[type="search"],
+  input[type="url"],
+  input[type="tel"],
   textarea {
     cursor: text !important;
   }
@@ -83,60 +80,55 @@
   background: var(--color-brand);
 }
 
-/* Cursor base */
+#__next,
+html,
+body {
+  cursor: none !important;
+}
+
+/* Cursor personalizado base */
 .custom-cursor {
   position: fixed;
   top: 0;
   left: 0;
-  width: 18px;
-  height: 18px;
-  margin-left: -9px;
-  margin-top: -9px;
+  width: 20px;
+  height: 20px;
+  margin-left: -10px;
+  margin-top: -10px;
 
   border-radius: 50%;
   background: white;
+  box-shadow: 0 0 0 1px rgba(0, 0, 0, 0.1);
 
   pointer-events: none;
-  z-index: 9999;
+  z-index: 99999;
+  will-change: transform;
 
   mix-blend-mode: difference;
 
   transform-origin: center;
+  opacity: 0;
   transition:
-    width 0.35s cubic-bezier(0.22, 1, 0.36, 1),
-    height 0.35s cubic-bezier(0.22, 1, 0.36, 1),
-    margin 0.35s cubic-bezier(0.22, 1, 0.36, 1),
-    background-color 0.3s ease;
+    opacity 0.15s ease,
+    width 0.3s cubic-bezier(0.22, 1, 0.36, 1),
+    height 0.3s cubic-bezier(0.22, 1, 0.36, 1),
+    margin 0.3s cubic-bezier(0.22, 1, 0.36, 1),
+    background-color 0.25s ease;
 }
 
 /* Estado activo (hover sobre clickable) */
 .custom-cursor.cursor--active {
-  width: 64px;
-  height: 64px;
-  margin-left: -32px;
-  margin-top: -32px;
-
-  background: rgba(255, 255, 255, 0.9);
+  width: 60px;
+  height: 60px;
+  margin-left: -30px;
+  margin-top: -30px;
+  background: rgba(255, 255, 255, 0.85);
+  box-shadow: 0 0 0 2px rgba(255, 255, 255, 0.3);
 }
 
 /* Solo desktop */
 @media (max-width: 767px) {
   .custom-cursor {
     display: none;
-  }
-}
-
-/* Ocultar cursor nativo */
-@media (min-width: 768px) {
-  html,
-  body,
-  *,
-  a,
-  button,
-  input,
-  textarea,
-  select,
-  .cursor-pointer {
-    cursor: none !important;
   }
 }

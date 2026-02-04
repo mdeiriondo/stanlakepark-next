@@ -3,6 +3,8 @@ import { Inter, Playfair_Display } from "next/font/google";
 import "./globals.css";
 import CustomCursor from "@/components/ui/CustomCursor";
 import { SpeedInsights } from "@vercel/speed-insights/next";
+import { TransitionProvider } from "@/context/TransitionContext";
+import TransitionOverlay from "@/components/layout/TransitionOverlay";
 
 // Cargamos las fuentes con 'swap' para que no haya flash de texto invisible
 const inter = Inter({
@@ -34,8 +36,11 @@ export default function RootLayout({
       className={`${inter.variable} ${playfair.variable} scroll-smooth`}
     >
       <body className="font-sans antialiased bg-white text-black selection:bg-[#760235] selection:text-white cursor-none">
-        <CustomCursor />
-        {children}
+        <TransitionProvider>
+          <TransitionOverlay />
+          <CustomCursor />
+          {children}
+        </TransitionProvider>
         <SpeedInsights />
       </body>
     </html>

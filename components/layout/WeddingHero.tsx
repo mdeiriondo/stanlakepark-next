@@ -3,6 +3,7 @@
 import React from "react";
 import Reveal from "@/components/ui/Reveal";
 import Button from "@/components/ui/Button";
+import TransitionLink from "@/components/ui/TransitionLink";
 
 const IMAGES = {
   hero: "https://images.unsplash.com/photo-1519225421980-715cb0202128?q=80&w=2000&auto=format&fit=crop",
@@ -28,8 +29,18 @@ export default function WeddingHero() {
               centuries-old estate."
             </p>
             <div className="flex flex-col sm:flex-row gap-10">
-              <Button variant="wedding">Enquire Now</Button>
-              <Button variant="weddingOutline">Virtual Tour</Button>
+              {/* LINK CONECTADO */}
+              <TransitionLink href="/weddings/enquire">
+                <Button variant="wedding">Enquire Now</Button>
+              </TransitionLink>
+
+              {/* Placeholder para Virtual Tour */}
+              <Button
+                variant="weddingOutline"
+                onClick={() => alert("Virtual Tour Modal coming soon!")}
+              >
+                Virtual Tour
+              </Button>
             </div>
           </Reveal>
         </div>
@@ -42,11 +53,10 @@ export default function WeddingHero() {
               className="w-full h-full object-cover animate-ken-burns"
               alt="Wedding at Stanlake Park"
             />
-            {/* Gradiente sutil */}
             <div className="absolute inset-0 bg-gradient-to-t from-black/10 via-transparent to-transparent"></div>
           </div>
 
-          {/* Imagen Flotante Pequeña (Decorativa) */}
+          {/* Imagen Flotante Pequeña */}
           <div className="absolute bottom-20 left-0 w-[45%] h-[40%] bg-white p-4 shadow-2xl transform -rotate-2 hidden lg:block transition-transform hover:rotate-0 duration-700 ease-out">
             <div className="w-full h-full overflow-hidden">
               <img

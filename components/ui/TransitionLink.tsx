@@ -14,6 +14,7 @@ interface TransitionLinkProps extends LinkProps {
 export default function TransitionLink({
   children,
   href,
+  className,
   ...props
 }: TransitionLinkProps) {
   const router = useRouter();
@@ -22,24 +23,33 @@ export default function TransitionLink({
   const handleTransition = async (
     e: React.MouseEvent<HTMLAnchorElement, MouseEvent>,
   ) => {
+    // 1. Evitamos la navegación estándar inmediata
     e.preventDefault();
 
-    // 1. Iniciar la cortina
+    // 2. Bajamos el telón
     startTransition();
 
-    // 2. Esperar a que la cortina cubra la pantalla (800ms)
+    // 3. Esperamos EXACTAMENTE lo que dura la animación CSS (800ms)
+    // El usuario verá la pantalla negra bajando durante este tiempo.
     await new Promise((resolve) => setTimeout(resolve, 800));
 
-    // 3. Navegar de verdad
+    // 4. Cambiamos la URL (mientras la pantalla sigue negra)
     router.push(href);
 
-    // 4. Esperar un poco y levantar la cortina en la nueva página
-    await new Promise((resolve) => setTimeout(resolve, 500));
+    // 5. Esperamos un instante para que Next.js cargue la nueva página
+    await new Promise((resolve) => setTimeout(resolve, 400));
+
+    // 6. Levantamos el telón
     endTransition();
   };
 
   return (
-    <Link onClick={handleTransition} href={href} {...props}>
+    <Link
+      onClick={handleTransition}
+      href={href}
+      className={className}
+      {...props}
+    >
       {children}
     </Link>
   );

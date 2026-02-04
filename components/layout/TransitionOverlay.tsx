@@ -8,21 +8,28 @@ export default function TransitionOverlay() {
 
   return (
     <div
-      className={`fixed inset-0 z-[999999] pointer-events-none flex items-center justify-center transition-opacity duration-[800ms] ${
-        isTransitioning ? "opacity-100" : "opacity-0"
-      }`}
+      className={`fixed inset-0 z-[100000] flex items-center justify-center pointer-events-none`}
     >
-      {/* Fondo Negro que cae/sube */}
+      {/* LA CORTINA NEGRA
+         - Usamos scale-y para el efecto de barrido vertical.
+         - origin-top: empieza desde arriba.
+         - transition-transform: suavidad del movimiento.
+      */}
       <div
         className={`absolute inset-0 bg-[#0a0a0a] transition-transform duration-[800ms] ease-in-out ${
           isTransitioning ? "scale-y-100" : "scale-y-0"
         } origin-top`}
       />
 
-      {/* Texto Palpitante */}
+      {/* EL TEXTO (STANLAKE PARK)
+         - Solo aparece cuando la transición está activa.
+         - delay: espera un poco a que baje la cortina para aparecer.
+      */}
       <div
-        className={`relative z-10 text-white font-serif text-4xl md:text-6xl tracking-[0.3em] transition-opacity duration-500 ${
-          isTransitioning ? "opacity-100 animate-pulse" : "opacity-0"
+        className={`relative z-10 text-white font-serif text-3xl md:text-5xl tracking-[0.4em] transition-all duration-500 delay-100 ${
+          isTransitioning
+            ? "opacity-100 translate-y-0"
+            : "opacity-0 translate-y-10"
         }`}
       >
         STANLAKE PARK
