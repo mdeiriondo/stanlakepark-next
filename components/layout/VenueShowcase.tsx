@@ -20,10 +20,10 @@ const VENUES = [
     desc: "A secret garden sanctuary hidden within our historic grounds, perfect for summer vows.",
   },
   {
-    slug: "vineyard-barn", // Asegúrate de tener datos para este slug si vas a crear la página
+    slug: "vineyard-barn",
     title: "Vineyard Barn",
     cap: "Celebration Venue",
-    img: "https://images.unsplash.com/photo-1519225421980-715cb0202128?q=80&w=2000&auto=format&fit=crop",
+    img: "https://images.unsplash.com/photo-1506377247377-2a5b3b417ebb?q=80&w=2070&auto=format&fit=crop",
     desc: "Breathtaking views over the vines for your evening party as the sun sets.",
   },
 ];

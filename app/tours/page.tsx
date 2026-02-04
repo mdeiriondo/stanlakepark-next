@@ -43,7 +43,7 @@ const TOURS = [
     duration: "4 Hours",
     groupSize: "10",
     image:
-      "https://images.unsplash.com/photo-1533090481720-856c6e3c19c5?q=80&w=2668&auto=format&fit=crop",
+      "https://images.unsplash.com/photo-1631379578550-7038263db699?q=80&w=2674&auto=format&fit=crop",
   },
 ];
 
@@ -55,7 +55,8 @@ export default function ToursPage() {
       <PageHero
         title="Vineyard Tours"
         subtitle="Discover the Magic Behind the Bottle"
-        image="https://images.unsplash.com/photo-1533090481720-856c6e3c19c5?q=80&w=2668&auto=format&fit=crop"
+        video="https://videos.pexels.com/video-files/3045163/3045163-hd_1920_1080_30fps.mp4"
+        image="https://images.unsplash.com/photo-1506377247377-2a5b3b417ebb?q=80&w=2670&auto=format&fit=crop"
       />
 
       {/* Intro */}

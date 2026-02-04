@@ -16,7 +16,7 @@ const WINES = {
       type: "Sparkling · Traditional",
       price: "£35.00",
       image:
-        "https://images.unsplash.com/photo-1598155523122-38423bb4d6c1?q=80&w=2574&auto=format&fit=crop",
+        "https://images.unsplash.com/photo-1513558161293-cdaf765ed2fd?q=80&w=800&auto=format&fit=crop",
       badge: "Gold Medal",
     },
     {
@@ -95,17 +95,21 @@ export default function OurWinesPage() {
         <div className="max-w-[1600px] mx-auto">
           <div className="flex flex-col md:flex-row justify-between items-end mb-16 gap-6">
             <Reveal>
-              <h2 className="text-5xl font-serif text-dark mb-4">
-                English Sparkling
-              </h2>
-              <p className="text-gray-500 max-w-md">
-                Traditional method wines, aged on lees for exceptional
-                complexity and texture.
-              </p>
+              <div className="text-center md:text-left">
+                <h2 className="text-5xl font-serif text-dark mb-4">
+                  English Sparkling
+                </h2>
+                <p className="text-gray-500 max-w-md mx-auto md:mx-0">
+                  Traditional method wines, aged on lees for exceptional
+                  complexity and texture.
+                </p>
+              </div>
             </Reveal>
-            <Link href="/shop">
-              <Button variant="outline">View All Sparkling</Button>
-            </Link>
+            <div className="text-center md:text-right">
+              <Link href="/shop">
+                <Button variant="outline">View All Sparkling</Button>
+              </Link>
+            </div>
           </div>
 
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8">
@@ -145,12 +149,12 @@ export default function OurWinesPage() {
       {/* 3. VINOS TRANQUILOS */}
       <section className="py-32 px-6 md:px-12">
         <div className="max-w-[1600px] mx-auto">
-          <div className="mb-16">
+          <div className="mb-16 text-center md:text-left">
             <Reveal>
               <h2 className="text-5xl font-serif text-dark mb-4">
                 Still Wines
               </h2>
-              <p className="text-gray-500 max-w-md">
+              <p className="text-gray-500 max-w-md mx-auto md:mx-0">
                 Crisp whites and delicate reds that express our unique
                 microclimate.
               </p>

@@ -8,7 +8,7 @@ import TransitionLink from "@/components/ui/TransitionLink";
 export default function Navbar({
   mode = "winery",
 }: {
-  mode?: "winery" | "wedding";
+  mode?: "winery" | "wedding" | "dark";
 }) {
   const [scrolled, setScrolled] = useState(false);
 
@@ -18,10 +18,13 @@ export default function Navbar({
     return () => window.removeEventListener("scroll", handleScroll);
   }, []);
 
-  // Clases dinámicas según el modo y el scroll
-  const navClasses = scrolled
-    ? "bg-dark/95 backdrop-blur-md py-4 shadow-xl"
-    : "bg-transparent py-10";
+  // dark = siempre fondo negro (ej. shop slug); winery = transparente hasta scroll; wedding = claro
+  const navClasses =
+    mode === "dark"
+      ? "bg-dark/95 backdrop-blur-md py-4 shadow-xl"
+      : scrolled
+        ? "bg-dark/95 backdrop-blur-md py-4 shadow-xl"
+        : "bg-transparent py-10";
 
   const textClasses = mode === "wedding" ? "text-dark" : "text-white";
   const logoMainClasses =
