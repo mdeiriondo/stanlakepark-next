@@ -3,6 +3,7 @@
 import React, { useState, useEffect } from "react";
 import { ShoppingBag, Menu, Heart, Search } from "lucide-react";
 import Link from "next/link";
+import TransitionLink from "@/components/ui/TransitionLink";
 
 export default function Navbar({
   mode = "winery",
@@ -67,12 +68,12 @@ export default function Navbar({
         <div
           className={`flex items-center gap-10 ${scrolled ? "text-white" : "text-white"}`}
         >
-          <Link
+          <TransitionLink
             href="/weddings"
             className="hidden xl:flex items-center gap-3 text-[10px] font-bold uppercase tracking-[0.3em] border border-white/20 px-6 py-3 hover:bg-white hover:text-black transition-all duration-500"
           >
             Weddings <Heart size={12} />
-          </Link>
+          </TransitionLink>
 
           <div className="flex gap-8">
             <Search
