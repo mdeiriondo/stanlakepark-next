@@ -30,7 +30,7 @@ const WINES = [
     type: "Sparkling",
     price: "£35.00",
     image:
-      "https://images.unsplash.com/photo-1560493676-04071c5f467b?q=80&w=2668&auto=format&fit=crop",
+      "https://images.unsplash.com/photo-1536346323287-0b6aa9e7d715?q=80&w=800&h=1200&auto=format&fit=crop",
   },
   {
     id: "bacchus",

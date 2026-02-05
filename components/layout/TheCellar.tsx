@@ -20,7 +20,7 @@ const WINES = [
     name: "Heritage Brut",
     type: "Sparkling",
     price: "£35.00",
-    img: "https://images.unsplash.com/photo-1560493676-04071c5f467b?q=80&w=2668&auto=format&fit=crop",
+    img: "https://images.unsplash.com/photo-1536346323287-0b6aa9e7d715?q=80&w=800&h=1200&auto=format&fit=crop",
   },
 ];
 

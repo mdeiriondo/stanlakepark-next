@@ -16,7 +16,7 @@ const WINES = {
       type: "Sparkling · Traditional",
       price: "£35.00",
       image:
-        "https://images.unsplash.com/photo-1513558161293-cdaf765ed2fd?q=80&w=800&auto=format&fit=crop",
+        "https://images.unsplash.com/photo-1536346323287-0b6aa9e7d715?q=80&w=800&h=1200&fit=crop",
       badge: "Gold Medal",
     },
     {
@@ -176,14 +176,16 @@ export default function OurWinesPage() {
       {/* 4. CTA FINAL */}
       <section className="py-32 bg-brand text-white text-center relative overflow-hidden">
         <div className="absolute inset-0 opacity-10 bg-[url('https://www.transparenttextures.com/patterns/cubes.png')]" />
-        <div className="relative z-10">
+        <div className="relative z-10 flex flex-col items-center justify-center">
           <Reveal>
             <h2 className="text-6xl md:text-8xl font-serif mb-10">
               Visit the Shop
             </h2>
-            <Link href="/shop">
-              <Button variant="whiteOutline">Browse Full Collection</Button>
-            </Link>
+            <div className="flex justify-center">
+              <Link href="/shop">
+                <Button variant="whiteOutline">Browse Full Collection</Button>
+              </Link>
+            </div>
           </Reveal>
         </div>
       </section>

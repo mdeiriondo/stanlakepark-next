@@ -22,7 +22,7 @@ export default async function WineTemplate({
 
   return (
     <main className="bg-white min-h-screen">
-      <Navbar mode="winery" />
+      <Navbar mode="dark" />
 
       <div className="pt-32 pb-20 px-6 md:px-12 max-w-[1600px] mx-auto">
         {/* Breadcrumb simple */}
