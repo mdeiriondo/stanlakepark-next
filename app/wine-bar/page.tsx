@@ -99,7 +99,9 @@ export default function WineBarPage() {
             While we operate on a walk-in basis for small groups, we recommend
             booking for parties of 8 or more to ensure the best experience.
           </p>
-          <Button>Book a Table</Button>
+          <div className="flex justify-center">
+            <Button>Book a Table</Button>
+          </div>
         </Reveal>
       </section>
 
