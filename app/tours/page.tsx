@@ -4,9 +4,20 @@ import Footer from "@/components/layout/Footer";
 import PageHero from "@/components/layout/PageHero";
 import TourCard from "@/components/ui/TourCard";
 import Reveal from "@/components/ui/Reveal";
+import { getExperienceInfo } from "@/lib/wordpress";
 
-// Datos estáticos de tours
-const TOURS = [
+/** Tipos de experiencia que se muestran como "Tours" en /tours */
+const TOUR_TYPES = [
+  "wine_tour_tasting",
+  "wine_cheese_tour",
+  "special_tastings",
+] as const;
+
+const PLACEHOLDER_IMAGE =
+  "https://images.unsplash.com/photo-1506377247377-2a5b3b417ebb?q=80&w=2670&auto=format&fit=crop";
+
+/** Datos estáticos cuando no hay tours en WordPress (mismo diseño que antes) */
+const FALLBACK_TOURS = [
   {
     id: "wine-tour-tasting",
     title: "Wine Tour & Tasting",
@@ -14,8 +25,7 @@ const TOURS = [
     duration: "2 Hours",
     groupSize: "20",
     badge: "Most Popular",
-    image:
-      "https://images.unsplash.com/photo-1506377247377-2a5b3b417ebb?q=80&w=2670&auto=format&fit=crop",
+    image: PLACEHOLDER_IMAGE,
   },
   {
     id: "cheese-wine-tour",
@@ -47,7 +57,28 @@ const TOURS = [
   },
 ];
 
-export default function ToursPage() {
+export default async function ToursPage() {
+  const experiences = await getExperienceInfo();
+  const wpTours = experiences.filter((exp) =>
+    TOUR_TYPES.includes(exp.experienceDetails.experienceType as (typeof TOUR_TYPES)[number])
+  );
+
+  const useWordPress = wpTours.length > 0;
+  const toursToShow = useWordPress
+    ? wpTours.map((tour) => ({
+        id: tour.slug,
+        title: tour.title,
+        price:
+          tour.pricing.basePrice > 0
+            ? `£${tour.pricing.basePrice.toFixed(2)}`
+            : "Consult",
+        duration: tour.experienceDetails.duration || "—",
+        groupSize: undefined as string | undefined,
+        badge: tour.experienceDetails.badge ?? undefined,
+        image: tour.featuredImage?.node?.sourceUrl || PLACEHOLDER_IMAGE,
+      }))
+    : FALLBACK_TOURS;
+
   return (
     <main className="bg-white min-h-screen">
       <Navbar mode="winery" />
@@ -77,12 +108,20 @@ export default function ToursPage() {
         </div>
       </section>
 
-      {/* Lista de Tours */}
+      {/* Lista de Tours (WordPress si hay datos, si no datos estáticos) */}
       <section className="pb-32 px-6 md:px-12 max-w-[1600px] mx-auto">
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
-          {TOURS.map((tour, i) => (
+          {toursToShow.map((tour, i) => (
             <Reveal key={tour.id} delay={i * 100}>
-              <TourCard {...tour} />
+              <TourCard
+                id={tour.id}
+                title={tour.title}
+                price={tour.price}
+                duration={tour.duration}
+                image={tour.image}
+                badge={tour.badge}
+                groupSize={tour.groupSize}
+              />
             </Reveal>
           ))}
         </div>

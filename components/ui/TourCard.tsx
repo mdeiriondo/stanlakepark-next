@@ -74,7 +74,8 @@ export default function TourCard({
           {title}
         </h3>
         <span className="text-sm font-medium text-gray-600 font-sans">
-          {price} <span className="text-[10px] text-gray-400">/ pp</span>
+          {price} 
+          {/* <span className="text-[10px] text-gray-400">/ pp</span> */}
         </span>
       </div>
     </Link>
