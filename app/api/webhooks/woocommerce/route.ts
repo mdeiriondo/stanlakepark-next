@@ -13,14 +13,35 @@ function getSignatureHeader(request: Request): string | null {
 function verifyWebhookSignature(body: string, signature: string): boolean {
   const secret = process.env.WC_WEBHOOK_SECRET;
   if (!secret) return false;
-  const hash = crypto
-    .createHmac('sha256', secret)
-    .update(body, 'utf8')
-    .digest('base64');
-  const sigBuf = Buffer.from(signature, 'utf8');
-  const hashBuf = Buffer.from(hash, 'utf8');
-  if (sigBuf.length !== hashBuf.length) return false;
-  return crypto.timingSafeEqual(sigBuf, hashBuf);
+  const sigTrim = signature.trim();
+
+  const tryVerify = (payload: string) => {
+    const hashBase64 = crypto
+      .createHmac('sha256', secret)
+      .update(payload, 'utf8')
+      .digest('base64');
+    const hashHex = crypto
+      .createHmac('sha256', secret)
+      .update(payload, 'utf8')
+      .digest('hex');
+
+    if (sigTrim.length === hashBase64.length && /^[A-Za-z0-9+/=]+$/.test(sigTrim)) {
+      const sigBuf = Buffer.from(sigTrim, 'utf8');
+      const hashBuf = Buffer.from(hashBase64, 'utf8');
+      if (sigBuf.length === hashBuf.length && crypto.timingSafeEqual(sigBuf, hashBuf)) return true;
+    }
+    if (sigTrim.length === hashHex.length && /^[a-f0-9]+$/i.test(sigTrim)) {
+      const sigBuf = Buffer.from(sigTrim.toLowerCase(), 'utf8');
+      const hashBuf = Buffer.from(hashHex, 'utf8');
+      if (sigBuf.length === hashBuf.length && crypto.timingSafeEqual(sigBuf, hashBuf)) return true;
+    }
+    return false;
+  };
+
+  if (tryVerify(body)) return true;
+  // Por si algo en el camino normaliza \r\n → \n
+  const bodyNormalized = body.replace(/\r\n/g, '\n').replace(/\r/g, '\n');
+  return bodyNormalized !== body && tryVerify(bodyNormalized);
 }
 
 function generateBookingReference(): string {
@@ -74,14 +95,19 @@ export async function POST(request: Request) {
         );
       }
       if (!verifyWebhookSignature(body, signature)) {
-        // Log para ver en Vercel (sin exponer secret ni body)
         console.warn(
           `Webhook 401: signature length=${signature?.length ?? 0}, body length=${body?.length ?? 0}, secret set=${!!process.env.WC_WEBHOOK_SECRET}`
         );
+        // Incluir debug en la respuesta para verla en WooCommerce → Entregas recientes → Respuesta
         return NextResponse.json(
           {
             error: 'Invalid webhook signature',
-            hint: 'El "Secret" del webhook en WooCommerce debe ser EXACTAMENTE igual a WC_WEBHOOK_SECRET (mismo texto, sin espacios). En producción: Vercel → Project → Settings → Environment Variables → WC_WEBHOOK_SECRET. Si acabas de cambiarlo, haz un redeploy.',
+            hint: 'El "Secret" del webhook en WooCommerce debe ser EXACTAMENTE igual a WC_WEBHOOK_SECRET. Prueba: copiar el valor de Vercel y pegarlo en WooCommerce (campo Secret).',
+            debug: {
+              signatureLength: signature?.length ?? 0,
+              bodyLength: body?.length ?? 0,
+              bodyPreview: body?.length ? `${body.slice(0, 80)}...` : '(empty)',
+            },
           },
           { status: 401 }
         );
