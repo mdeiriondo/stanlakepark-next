@@ -58,6 +58,17 @@ Uso solo en Server Components, Route Handlers o API routes (nunca en cliente).
 
 Docs: https://developers.tickettailor.com/docs/webhook/configuration
 
+## Qué ID usar en WordPress (ACF `ticket_tailor_event_id`)
+
+Ticket Tailor usa **dos IDs** distintos:
+
+| Origen | Ejemplo | ¿Funciona en la URL de checkout? |
+|--------|---------|----------------------------------|
+| **ID público (numérico)** | `2061731` | ✅ Sí. URL: `https://buytickets.at/stanlakepark/2061731` |
+| **ID de la API** | `ev_7632424` | ❌ No. Esa URL da 404 en el navegador. |
+
+**Recomendación:** En WordPress guardá siempre el **ID numérico** que aparece en la URL del evento en Ticket Tailor / buytickets.at. Por ejemplo, si el enlace del evento es `https://buytickets.at/stanlakepark/2061731`, usá **`2061731`** en el campo ACF `ticket_tailor_event_id`. La app acepta ambos (si pasás `ev_xxx`, la API puede devolver la URL pública; si pasás el numérico, construimos la URL de checkout con ese número).
+
 ## Depurar: ver los IDs que devuelve la API
 
 Abrí en el navegador:
@@ -69,9 +80,7 @@ Ahí vas a ver:
 
 - **overview**: si la API key es válida.
 - **events_endpoint**: si `GET /v1/events` responde bien o error (ej. 404).
-- **event_ids_for_wordpress**: lista de `{ id, name }` de eventos. **Ese `id` es el que podés usar en el ACF `ticket_tailor_event_id`** si la API lo devuelve.
-
-Si **events_endpoint** sale con `status: 404`, la API de Ticket Tailor no está devolviendo eventos para tu box office (o el endpoint es otro). En ese caso **el ID correcto para WordPress es el de la URL de buytickets.at**: si la reserva es `https://buytickets.at/stanlakepark/2061731`, poné **2061731** en `ticket_tailor_event_id`. El botón «Complete booking» seguirá funcionando; solo no se rellenarán nombre/precio en el modal desde la API.
+- **event_ids_for_wordpress**: lista de `{ id, name }` de eventos. Si la API devuelve `ev_xxx`, en la app usamos `event.url` de la respuesta para el checkout; si no hay datos, **usá el ID numérico de la URL** (ej. 2061731) en `ticket_tailor_event_id`.
 
 ## Si GET /api/ticket-tailor/events/ID devuelve 404
 
