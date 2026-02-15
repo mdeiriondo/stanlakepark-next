@@ -2,14 +2,25 @@ import { NextResponse } from 'next/server';
 import { sql } from '@vercel/postgres';
 import crypto from 'crypto';
 
+/** WooCommerce envía la firma en X-WC-Webhook-Signature (HMAC-SHA256 del body en base64). */
+function getSignatureHeader(request: Request): string | null {
+  const v =
+    request.headers.get('x-wc-webhook-signature') ??
+    request.headers.get('X-WC-Webhook-Signature');
+  return v ? v.trim() : null;
+}
+
 function verifyWebhookSignature(body: string, signature: string): boolean {
-  const secret = process.env.WC_WEBHOOK_SECRET!;
+  const secret = process.env.WC_WEBHOOK_SECRET;
   if (!secret) return false;
   const hash = crypto
     .createHmac('sha256', secret)
-    .update(body)
+    .update(body, 'utf8')
     .digest('base64');
-  return hash === signature;
+  const sigBuf = Buffer.from(signature, 'utf8');
+  const hashBuf = Buffer.from(hash, 'utf8');
+  if (sigBuf.length !== hashBuf.length) return false;
+  return crypto.timingSafeEqual(sigBuf, hashBuf);
 }
 
 function generateBookingReference(): string {
@@ -22,14 +33,46 @@ function generateBookingReference(): string {
 
 export async function POST(request: Request) {
   try {
-    const signature = request.headers.get('x-wc-webhook-signature');
+    const signature = getSignatureHeader(request);
     const body = await request.text();
 
-    if (!signature || !verifyWebhookSignature(body, signature)) {
-      return NextResponse.json(
-        { error: 'Invalid webhook signature' },
-        { status: 401 }
-      );
+    // Opción solo para desarrollo: saltar verificación (NUNCA en producción)
+    const skipVerify = process.env.SKIP_WEBHOOK_VERIFICATION === 'true';
+    if (skipVerify) {
+      if (!body) {
+        return NextResponse.json(
+          { error: 'Empty body', hint: 'WooCommerce sends order JSON in the body' },
+          { status: 400 }
+        );
+      }
+    } else {
+      if (!signature) {
+        return NextResponse.json(
+          {
+            error: 'Missing X-WC-Webhook-Signature header',
+            hint: 'In WooCommerce: Webhooks → edit your webhook → set "Secret" to any string, then set WC_WEBHOOK_SECRET to the same value in .env',
+          },
+          { status: 401 }
+        );
+      }
+      if (!process.env.WC_WEBHOOK_SECRET) {
+        return NextResponse.json(
+          {
+            error: 'WC_WEBHOOK_SECRET not configured',
+            hint: 'Add WC_WEBHOOK_SECRET to .env (same value as the webhook Secret in WooCommerce)',
+          },
+          { status: 501 }
+        );
+      }
+      if (!verifyWebhookSignature(body, signature)) {
+        return NextResponse.json(
+          {
+            error: 'Invalid webhook signature',
+            hint: 'Ensure WC_WEBHOOK_SECRET in .env exactly matches the "Secret" field in WooCommerce → Webhooks → your webhook',
+          },
+          { status: 401 }
+        );
+      }
     }
 
     const payload = JSON.parse(body) as {
