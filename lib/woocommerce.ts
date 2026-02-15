@@ -1,11 +1,26 @@
 import WooCommerceRestApi from '@woocommerce/woocommerce-rest-api';
 
-const WooCommerce = new WooCommerceRestApi({
-  url: process.env.WC_STORE_URL!,
-  consumerKey: process.env.WC_CONSUMER_KEY!,
-  consumerSecret: process.env.WC_CONSUMER_SECRET!,
-  version: 'wc/v3',
-});
+let wooClient: InstanceType<typeof WooCommerceRestApi> | null = null;
+
+function getWooCommerce(): InstanceType<typeof WooCommerceRestApi> {
+  if (!wooClient) {
+    const url = process.env.WC_STORE_URL;
+    const consumerKey = process.env.WC_CONSUMER_KEY;
+    const consumerSecret = process.env.WC_CONSUMER_SECRET;
+    if (!url || !consumerKey || !consumerSecret) {
+      throw new Error(
+        'WooCommerce is not configured: WC_STORE_URL, WC_CONSUMER_KEY and WC_CONSUMER_SECRET are required'
+      );
+    }
+    wooClient = new WooCommerceRestApi({
+      url,
+      consumerKey,
+      consumerSecret,
+      version: 'wc/v3',
+    });
+  }
+  return wooClient;
+}
 
 export interface CreateBookingProductParams {
   experienceName: string;
@@ -39,7 +54,7 @@ export async function createBookingProduct(params: CreateBookingProductParams) {
 
   try {
     const categoryId = await getBookingsCategoryId();
-    const response = await WooCommerce.post('products', {
+    const response = await getWooCommerce().post('products', {
       name: productName,
       type: 'simple',
       regular_price: totalPrice.toFixed(2),
@@ -67,7 +82,7 @@ export async function createBookingProduct(params: CreateBookingProductParams) {
 
 async function getBookingsCategoryId(): Promise<number> {
   try {
-    const categories = await WooCommerce.get('products/categories', {
+    const categories = await getWooCommerce().get('products/categories', {
       search: 'Bookings',
     });
     const data = categories.data as Array<{ id: number }>;
@@ -75,7 +90,7 @@ async function getBookingsCategoryId(): Promise<number> {
       return data[0].id;
     }
 
-    const newCategory = await WooCommerce.post('products/categories', {
+    const newCategory = await getWooCommerce().post('products/categories', {
       name: 'Bookings',
       slug: 'bookings',
       description: 'Experience bookings - auto-generated',
@@ -91,4 +106,4 @@ export function getCheckoutUrl(productId: number): string {
   return `${process.env.WC_STORE_URL}/checkout/?add-to-cart=${productId}`;
 }
 
-export default WooCommerce;
+export default getWooCommerce;
