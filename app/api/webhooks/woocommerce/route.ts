@@ -31,6 +31,15 @@ function generateBookingReference(): string {
   return `SP-${year}-${random}`;
 }
 
+/** GET: para comprobar que la URL existe (evita 405 al abrir en el navegador). */
+export async function GET() {
+  return NextResponse.json({
+    ok: true,
+    message: 'WooCommerce webhook endpoint. Use POST with X-WC-Webhook-Signature.',
+    url: 'https://stanlakepark.vercel.app/api/webhooks/woocommerce',
+  });
+}
+
 export async function POST(request: Request) {
   try {
     const signature = getSignatureHeader(request);
@@ -50,7 +59,7 @@ export async function POST(request: Request) {
         return NextResponse.json(
           {
             error: 'Missing X-WC-Webhook-Signature header',
-            hint: 'In WooCommerce: Webhooks → edit your webhook → set "Secret" to any string, then set WC_WEBHOOK_SECRET to the same value in .env',
+            hint: 'WooCommerce → Ajustes → Avanzado → Webhooks → editar webhook → campo "Secret" debe tener un valor. El mismo valor en .env como WC_WEBHOOK_SECRET. En Vercel: Project → Settings → Environment Variables.',
           },
           { status: 401 }
         );
@@ -59,16 +68,20 @@ export async function POST(request: Request) {
         return NextResponse.json(
           {
             error: 'WC_WEBHOOK_SECRET not configured',
-            hint: 'Add WC_WEBHOOK_SECRET to .env (same value as the webhook Secret in WooCommerce)',
+            hint: 'En Vercel: Project → Settings → Environment Variables → añadir WC_WEBHOOK_SECRET con el mismo valor que el "Secret" del webhook en WooCommerce.',
           },
           { status: 501 }
         );
       }
       if (!verifyWebhookSignature(body, signature)) {
+        // Log para ver en Vercel (sin exponer secret ni body)
+        console.warn(
+          `Webhook 401: signature length=${signature?.length ?? 0}, body length=${body?.length ?? 0}, secret set=${!!process.env.WC_WEBHOOK_SECRET}`
+        );
         return NextResponse.json(
           {
             error: 'Invalid webhook signature',
-            hint: 'Ensure WC_WEBHOOK_SECRET in .env exactly matches the "Secret" field in WooCommerce → Webhooks → your webhook',
+            hint: 'El "Secret" del webhook en WooCommerce debe ser EXACTAMENTE igual a WC_WEBHOOK_SECRET (mismo texto, sin espacios). En producción: Vercel → Project → Settings → Environment Variables → WC_WEBHOOK_SECRET. Si acabas de cambiarlo, haz un redeploy.',
           },
           { status: 401 }
         );
