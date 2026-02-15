@@ -1,0 +1,87 @@
+[
+    {
+        "key": "group_experience_editorial",
+        "title": "Experience Info (Editorial & Native Booking)",
+        "fields": [
+            {
+                "key": "field_booking_system_mode",
+                "label": "Booking System Mode",
+                "name": "booking_mode",
+                "type": "select",
+                "choices": {
+                    "ticket_tailor": "Ticket Tailor (External)",
+                    "native": "Native Booking (Firebase)"
+                },
+                "default_value": "ticket_tailor"
+            },
+            {
+                "key": "field_native_capacity_default",
+                "label": "Default Capacity",
+                "name": "native_capacity",
+                "type": "number",
+                "instructions": "General capacity if not specified in slots.",
+                "default_value": 20
+            },
+            {
+                "key": "field_native_schedule_days",
+                "label": "Available Days",
+                "name": "native_schedule",
+                "type": "checkbox",
+                "choices": {
+                    "1": "Monday",
+                    "2": "Tuesday",
+                    "3": "Wednesday",
+                    "4": "Thursday",
+                    "5": "Friday",
+                    "6": "Saturday",
+                    "0": "Sunday"
+                }
+            },
+            {
+                "key": "field_native_time_slots",
+                "label": "Time Slots",
+                "name": "native_time_slots",
+                "type": "repeater",
+                "instructions": "Define specific slots and their specific capacities.",
+                "layout": "table",
+                "button_label": "Add Slot",
+                "sub_fields": [
+                    {
+                        "key": "field_slot_label",
+                        "label": "Time Label",
+                        "name": "label",
+                        "type": "text",
+                        "placeholder": "e.g. 14:00 - 15:30"
+                    },
+                    {
+                        "key": "field_slot_capacity",
+                        "label": "Slot Capacity",
+                        "name": "slot_capacity",
+                        "type": "number",
+                        "instructions": "Overrides default capacity for this slot."
+                    }
+                ],
+                "conditional_logic": [
+                    [
+                        {
+                            "field": "field_booking_system_mode",
+                            "operator": "==",
+                            "value": "native"
+                        }
+                    ]
+                ]
+            }
+        ],
+        "location": [
+            [
+                {
+                    "param": "post_type",
+                    "operator": "==",
+                    "value": "experience_info"
+                }
+            ]
+        ],
+        "active": true,
+        "show_in_rest": 1
+    }
+]

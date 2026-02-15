@@ -1,0 +1,869 @@
+{
+  "acf_field_groups": [
+    {
+      "key": "group_experience_details",
+      "title": "Experience Details",
+      "fields": [
+        {
+          "key": "field_experience_type",
+          "label": "Experience Type",
+          "name": "experience_type",
+          "type": "select",
+          "required": 1,
+          "choices": {
+            "wine_tour_tasting": "Wine Tour & Tasting ⭐",
+            "wine_cheese_tour": "Wine & Cheese Tour ⭐",
+            "wine_cream_tea": "Wine & Cream Tea Tour",
+            "wine_cheese_tasting": "Wine & Cheese Tasting",
+            "work_vineyard": "Work from the Vineyard",
+            "special_tastings": "Special Tastings",
+            "special_events": "Special Events",
+            "wset_courses": "WSET Courses"
+          },
+          "default_value": "wine_tour_tasting"
+        },
+        {
+          "key": "field_duration",
+          "label": "Duration",
+          "name": "duration",
+          "type": "text",
+          "required": 1,
+          "default_value": "1.5 hours",
+          "placeholder": "e.g., 1.5 hours"
+        },
+        {
+          "key": "field_capacity",
+          "label": "Max Capacity",
+          "name": "capacity",
+          "type": "number",
+          "required": 1,
+          "default_value": 20,
+          "min": 1,
+          "max": 100
+        },
+        {
+          "key": "field_enable_waitlist",
+          "label": "Enable Waitlist",
+          "name": "enable_waitlist",
+          "type": "true_false",
+          "default_value": 1,
+          "ui": 1,
+          "message": "Allow users to join waitlist when sold out"
+        },
+        {
+          "key": "field_short_description",
+          "label": "Short Description",
+          "name": "short_description",
+          "type": "textarea",
+          "rows": 3,
+          "maxlength": 200,
+          "placeholder": "Brief description for cards (max 200 chars)"
+        },
+        {
+          "key": "field_whats_included",
+          "label": "What's Included",
+          "name": "whats_included",
+          "type": "repeater",
+          "layout": "table",
+          "button_label": "Add Item",
+          "sub_fields": [
+            {
+              "key": "field_included_item",
+              "label": "Item",
+              "name": "item",
+              "type": "text",
+              "required": 1,
+              "placeholder": "e.g., Guided vineyard tour"
+            }
+          ]
+        },
+        {
+          "key": "field_hero_image",
+          "label": "Hero Image",
+          "name": "hero_image",
+          "type": "image",
+          "return_format": "array",
+          "preview_size": "medium"
+        },
+        {
+          "key": "field_badge",
+          "label": "Badge",
+          "name": "badge",
+          "type": "select",
+          "allow_null": 1,
+          "choices": {
+            "most_popular": "⭐ Most Popular",
+            "popular": "⭐ Popular",
+            "seasonal": "🌸 Seasonal",
+            "new": "✨ New"
+          }
+        }
+      ],
+      "location": [
+        [
+          {
+            "param": "post_type",
+            "operator": "==",
+            "value": "experience"
+          }
+        ]
+      ]
+    },
+    {
+      "key": "group_scheduling",
+      "title": "Scheduling & Availability",
+      "fields": [
+        {
+          "key": "field_schedule_type",
+          "label": "Schedule Type",
+          "name": "schedule_type",
+          "type": "select",
+          "required": 1,
+          "choices": {
+            "recurring": "Recurring (fixed days/times)",
+            "seasonal": "Seasonal (date ranges)",
+            "adhoc": "Ad-hoc (manual dates)",
+            "external": "External (link only)"
+          },
+          "default_value": "recurring"
+        },
+        {
+          "key": "field_recurring_schedule",
+          "label": "Recurring Schedule",
+          "name": "recurring_schedule",
+          "type": "repeater",
+          "conditional_logic": [
+            [
+              {
+                "field": "field_schedule_type",
+                "operator": "==",
+                "value": "recurring"
+              }
+            ]
+          ],
+          "layout": "table",
+          "button_label": "Add Time Slot",
+          "sub_fields": [
+            {
+              "key": "field_day_of_week",
+              "label": "Day",
+              "name": "day",
+              "type": "select",
+              "required": 1,
+              "choices": {
+                "0": "Sunday",
+                "1": "Monday",
+                "2": "Tuesday",
+                "3": "Wednesday",
+                "4": "Thursday",
+                "5": "Friday",
+                "6": "Saturday"
+              }
+            },
+            {
+              "key": "field_time",
+              "label": "Time",
+              "name": "time",
+              "type": "time_picker",
+              "required": 1,
+              "display_format": "g:i a",
+              "return_format": "H:i:s"
+            }
+          ]
+        },
+        {
+          "key": "field_seasonal_dates",
+          "label": "Seasonal Availability",
+          "name": "seasonal_dates",
+          "type": "group",
+          "conditional_logic": [
+            [
+              {
+                "field": "field_schedule_type",
+                "operator": "==",
+                "value": "seasonal"
+              }
+            ]
+          ],
+          "sub_fields": [
+            {
+              "key": "field_start_month",
+              "label": "Start Month",
+              "name": "start_month",
+              "type": "select",
+              "choices": {
+                "1": "January",
+                "2": "February",
+                "3": "March",
+                "4": "April",
+                "5": "May",
+                "6": "June",
+                "7": "July",
+                "8": "August",
+                "9": "September",
+                "10": "October",
+                "11": "November",
+                "12": "December"
+              }
+            },
+            {
+              "key": "field_end_month",
+              "label": "End Month",
+              "name": "end_month",
+              "type": "select",
+              "choices": {
+                "1": "January",
+                "2": "February",
+                "3": "March",
+                "4": "April",
+                "5": "May",
+                "6": "June",
+                "7": "July",
+                "8": "August",
+                "9": "September",
+                "10": "October",
+                "11": "November",
+                "12": "December"
+              }
+            },
+            {
+              "key": "field_seasonal_days",
+              "label": "Days of Week",
+              "name": "days",
+              "type": "checkbox",
+              "choices": {
+                "0": "Sunday",
+                "1": "Monday",
+                "2": "Tuesday",
+                "3": "Wednesday",
+                "4": "Thursday",
+                "5": "Friday",
+                "6": "Saturday"
+              }
+            }
+          ]
+        },
+        {
+          "key": "field_external_link",
+          "label": "External Booking Link",
+          "name": "external_link",
+          "type": "url",
+          "conditional_logic": [
+            [
+              {
+                "field": "field_schedule_type",
+                "operator": "==",
+                "value": "external"
+              }
+            ]
+          ],
+          "placeholder": "https://..."
+        }
+      ],
+      "location": [
+        [
+          {
+            "param": "post_type",
+            "operator": "==",
+            "value": "experience"
+          }
+        ]
+      ]
+    },
+    {
+      "key": "group_pricing",
+      "title": "Pricing & Add-ons",
+      "fields": [
+        {
+          "key": "field_pricing_type",
+          "label": "Pricing Type",
+          "name": "pricing_type",
+          "type": "select",
+          "required": 1,
+          "choices": {
+            "fixed": "Fixed Price",
+            "dynamic": "Dynamic (by day/season)",
+            "variable": "Variable (per event)"
+          },
+          "default_value": "fixed"
+        },
+        {
+          "key": "field_base_price",
+          "label": "Base Price (£)",
+          "name": "base_price",
+          "type": "number",
+          "required": 1,
+          "conditional_logic": [
+            [
+              {
+                "field": "field_pricing_type",
+                "operator": "==",
+                "value": "fixed"
+              }
+            ]
+          ],
+          "min": 0,
+          "step": 1,
+          "placeholder": "25"
+        },
+        {
+          "key": "field_dynamic_pricing",
+          "label": "Dynamic Pricing Rules",
+          "name": "dynamic_pricing",
+          "type": "repeater",
+          "conditional_logic": [
+            [
+              {
+                "field": "field_pricing_type",
+                "operator": "==",
+                "value": "dynamic"
+              }
+            ]
+          ],
+          "layout": "block",
+          "button_label": "Add Pricing Rule",
+          "sub_fields": [
+            {
+              "key": "field_rule_name",
+              "label": "Rule Name",
+              "name": "name",
+              "type": "text",
+              "placeholder": "e.g., Weekend Premium"
+            },
+            {
+              "key": "field_rule_days",
+              "label": "Days",
+              "name": "days",
+              "type": "checkbox",
+              "choices": {
+                "0": "Sunday",
+                "1": "Monday",
+                "2": "Tuesday",
+                "3": "Wednesday",
+                "4": "Thursday",
+                "5": "Friday",
+                "6": "Saturday"
+              }
+            },
+            {
+              "key": "field_rule_months",
+              "label": "Months",
+              "name": "months",
+              "type": "checkbox",
+              "choices": {
+                "1": "Jan",
+                "2": "Feb",
+                "3": "Mar",
+                "4": "Apr",
+                "5": "May",
+                "6": "Jun",
+                "7": "Jul",
+                "8": "Aug",
+                "9": "Sep",
+                "10": "Oct",
+                "11": "Nov",
+                "12": "Dec"
+              }
+            },
+            {
+              "key": "field_rule_price",
+              "label": "Price (£)",
+              "name": "price",
+              "type": "number",
+              "required": 1,
+              "min": 0
+            }
+          ]
+        },
+        {
+          "key": "field_addons",
+          "label": "Add-ons Available",
+          "name": "addons",
+          "type": "repeater",
+          "layout": "block",
+          "button_label": "Add Add-on",
+          "sub_fields": [
+            {
+              "key": "field_addon_name",
+              "label": "Name",
+              "name": "name",
+              "type": "text",
+              "required": 1,
+              "placeholder": "e.g., Cheese Board"
+            },
+            {
+              "key": "field_addon_description",
+              "label": "Description",
+              "name": "description",
+              "type": "textarea",
+              "rows": 2,
+              "placeholder": "British artisan cheeses"
+            },
+            {
+              "key": "field_addon_price",
+              "label": "Price (£)",
+              "name": "price",
+              "type": "number",
+              "required": 1,
+              "min": 0,
+              "placeholder": "12"
+            },
+            {
+              "key": "field_addon_image",
+              "label": "Image",
+              "name": "image",
+              "type": "image",
+              "return_format": "array",
+              "preview_size": "thumbnail"
+            }
+          ]
+        }
+      ],
+      "location": [
+        [
+          {
+            "param": "post_type",
+            "operator": "==",
+            "value": "experience"
+          }
+        ]
+      ]
+    },
+    {
+      "key": "group_vouchers",
+      "title": "Vouchers & Discounts",
+      "fields": [
+        {
+          "key": "field_accept_vouchers",
+          "label": "Accept Vouchers",
+          "name": "accept_vouchers",
+          "type": "true_false",
+          "default_value": 1,
+          "ui": 1
+        },
+        {
+          "key": "field_third_party_vouchers",
+          "label": "Accepted Third-Party Vouchers",
+          "name": "third_party_vouchers",
+          "type": "checkbox",
+          "conditional_logic": [
+            [
+              {
+                "field": "field_accept_vouchers",
+                "operator": "==",
+                "value": "1"
+              }
+            ]
+          ],
+          "choices": {
+            "virgin": "Virgin Experience Days",
+            "redletter": "Red Letter Days",
+            "buyagift": "Buy A Gift",
+            "other": "Other (manual verification)"
+          }
+        },
+        {
+          "key": "field_voucher_redemption_notes",
+          "label": "Voucher Redemption Notes",
+          "name": "voucher_notes",
+          "type": "textarea",
+          "conditional_logic": [
+            [
+              {
+                "field": "field_accept_vouchers",
+                "operator": "==",
+                "value": "1"
+              }
+            ]
+          ],
+          "rows": 3,
+          "placeholder": "Special instructions for third-party vouchers..."
+        }
+      ],
+      "location": [
+        [
+          {
+            "param": "post_type",
+            "operator": "==",
+            "value": "experience"
+          }
+        ]
+      ]
+    },
+    {
+      "key": "group_waitlist_settings",
+      "title": "Waitlist Settings",
+      "fields": [
+        {
+          "key": "field_waitlist_email_subject",
+          "label": "Waitlist Notification Subject",
+          "name": "waitlist_subject",
+          "type": "text",
+          "conditional_logic": [
+            [
+              {
+                "field": "field_enable_waitlist",
+                "operator": "==",
+                "value": "1"
+              }
+            ]
+          ],
+          "default_value": "🎉 Great news - a spot just opened!",
+          "placeholder": "Email subject line"
+        },
+        {
+          "key": "field_waitlist_priority_window",
+          "label": "Priority Booking Window (hours)",
+          "name": "priority_window",
+          "type": "number",
+          "conditional_logic": [
+            [
+              {
+                "field": "field_enable_waitlist",
+                "operator": "==",
+                "value": "1"
+              }
+            ]
+          ],
+          "default_value": 24,
+          "min": 1,
+          "max": 72,
+          "placeholder": "24"
+        }
+      ],
+      "location": [
+        [
+          {
+            "param": "post_type",
+            "operator": "==",
+            "value": "experience"
+          }
+        ]
+      ]
+    }
+  ],
+  "custom_post_type": {
+    "key": "experience",
+    "label": "Experiences",
+    "labels": {
+      "singular": "Experience",
+      "plural": "Experiences"
+    },
+    "public": true,
+    "has_archive": true,
+    "rewrite": {
+      "slug": "experiences",
+      "with_front": false
+    },
+    "supports": [
+      "title",
+      "editor",
+      "thumbnail",
+      "excerpt"
+    ],
+    "menu_icon": "dashicons-tickets-alt",
+    "show_in_rest": true,
+    "rest_base": "experiences"
+  },
+  "example_experiences": [
+    {
+      "post_title": "Wine Tour & Tasting",
+      "post_type": "experience",
+      "post_status": "publish",
+      "post_content": "<p>Explore our historic vineyard and taste award-winning English wines. Walk through our beautiful grounds, learn about the winemaking process from our expert team, and sample our finest selections in our 17th-century barn.</p>\n\n<p>Your journey begins at the Wine Bar, where you'll meet your guide. From there, we'll walk through the vineyard, discussing the unique terroir of the Thames Valley and our sustainable viticulture practices. The tour concludes with a guided tasting of five of our premium wines.</p>",
+      "acf": {
+        "experience_type": "wine_tour_tasting",
+        "duration": "1.5 hours",
+        "capacity": 20,
+        "enable_waitlist": true,
+        "short_description": "Explore our historic vineyard and taste award-winning English wines",
+        "whats_included": [
+          {"item": "Guided vineyard tour"},
+          {"item": "Historic winery visit"},
+          {"item": "5 wine tastings"},
+          {"item": "Souvenir glass to take home"}
+        ],
+        "badge": "most_popular",
+        "schedule_type": "recurring",
+        "recurring_schedule": [
+          {"day": "5", "time": "14:00:00"},
+          {"day": "6", "time": "14:00:00"},
+          {"day": "0", "time": "14:00:00"}
+        ],
+        "pricing_type": "dynamic",
+        "dynamic_pricing": [
+          {
+            "name": "Weekday Standard",
+            "days": ["5"],
+            "months": ["1", "2", "3", "11", "12"],
+            "price": 20
+          },
+          {
+            "name": "Weekend Standard",
+            "days": ["6", "0"],
+            "months": ["1", "2", "3", "11", "12"],
+            "price": 22
+          },
+          {
+            "name": "Spring/Autumn Weekday",
+            "days": ["5"],
+            "months": ["4", "5", "6", "9", "10"],
+            "price": 22
+          },
+          {
+            "name": "Spring/Autumn Weekend",
+            "days": ["6", "0"],
+            "months": ["4", "5", "6", "9", "10"],
+            "price": 24
+          },
+          {
+            "name": "Summer Peak",
+            "days": ["5", "6", "0"],
+            "months": ["7", "8"],
+            "price": 25
+          }
+        ],
+        "addons": [
+          {
+            "name": "Cheese Board",
+            "description": "British artisan cheeses paired with our wines",
+            "price": 12
+          },
+          {
+            "name": "Charcuterie Board",
+            "description": "Selection of premium cured meats",
+            "price": 15
+          }
+        ],
+        "accept_vouchers": true,
+        "third_party_vouchers": ["virgin", "redletter"],
+        "waitlist_subject": "🎉 Spot available - Wine Tour {date}",
+        "priority_window": 24
+      }
+    },
+    {
+      "post_title": "Wine & Cheese Tour",
+      "post_type": "experience",
+      "post_status": "publish",
+      "post_content": "<p>Our signature wine tour paired with a carefully curated selection of British artisan cheeses. This premium experience combines our standard vineyard tour with an extended tasting featuring wine and cheese pairings expertly selected by our sommelier.</p>",
+      "acf": {
+        "experience_type": "wine_cheese_tour",
+        "duration": "1.5 hours",
+        "capacity": 20,
+        "enable_waitlist": true,
+        "short_description": "Our signature tour paired with artisan British cheeses",
+        "whats_included": [
+          {"item": "Guided vineyard tour"},
+          {"item": "Winery visit"},
+          {"item": "5 wine tastings"},
+          {"item": "Artisan cheese board"},
+          {"item": "Guided pairing session"}
+        ],
+        "badge": "popular",
+        "schedule_type": "recurring",
+        "recurring_schedule": [
+          {"day": "0", "time": "11:00:00"}
+        ],
+        "pricing_type": "dynamic",
+        "dynamic_pricing": [
+          {
+            "name": "Winter/Early Spring",
+            "days": ["0"],
+            "months": ["1", "2", "3"],
+            "price": 30
+          },
+          {
+            "name": "Late Spring/Summer",
+            "days": ["0"],
+            "months": ["4", "5", "6", "7", "8"],
+            "price": 35
+          },
+          {
+            "name": "Autumn/Winter",
+            "days": ["0"],
+            "months": ["9", "10", "11", "12"],
+            "price": 32
+          }
+        ],
+        "addons": [
+          {
+            "name": "Extra Cheese Selection",
+            "description": "Additional premium British cheeses",
+            "price": 8
+          },
+          {
+            "name": "Sparkling Wine Upgrade",
+            "description": "Replace one tasting with our premium sparkling",
+            "price": 10
+          }
+        ],
+        "accept_vouchers": true,
+        "third_party_vouchers": ["virgin", "redletter"],
+        "waitlist_subject": "🎉 Spot available - Wine & Cheese Tour {date}",
+        "priority_window": 24
+      }
+    },
+    {
+      "post_title": "Wine & Cream Tea Tour",
+      "post_type": "experience",
+      "post_status": "publish",
+      "post_content": "<p>A quintessentially English afternoon combining wine tasting with traditional cream tea. Perfect for a leisurely spring or summer visit.</p>",
+      "acf": {
+        "experience_type": "wine_cream_tea",
+        "duration": "2 hours",
+        "capacity": 16,
+        "enable_waitlist": true,
+        "short_description": "A quintessentially English afternoon experience",
+        "whats_included": [
+          {"item": "Vineyard tour"},
+          {"item": "3 wine tastings"},
+          {"item": "Traditional cream tea"},
+          {"item": "Scones with jam & clotted cream"}
+        ],
+        "badge": "seasonal",
+        "schedule_type": "seasonal",
+        "seasonal_dates": {
+          "start_month": "5",
+          "end_month": "9",
+          "days": ["3"]
+        },
+        "pricing_type": "fixed",
+        "base_price": 35,
+        "addons": [
+          {
+            "name": "Prosecco Upgrade",
+            "description": "Add a glass of sparkling wine",
+            "price": 10
+          }
+        ],
+        "accept_vouchers": true,
+        "third_party_vouchers": ["virgin"],
+        "waitlist_subject": "🎉 Spot available - Cream Tea Tour {date}",
+        "priority_window": 48
+      }
+    },
+    {
+      "post_title": "Wine & Cheese Tasting",
+      "post_type": "experience",
+      "post_status": "publish",
+      "post_content": "<p>Relaxed evening tasting in our Wine Bar. No tour included - just excellent wine, cheese, and conversation in a cozy setting.</p>",
+      "acf": {
+        "experience_type": "wine_cheese_tasting",
+        "duration": "1 hour",
+        "capacity": 12,
+        "enable_waitlist": false,
+        "short_description": "Relaxed evening tasting in our Wine Bar (no tour)",
+        "whats_included": [
+          {"item": "5 wine tastings"},
+          {"item": "Cheese board"},
+          {"item": "Wine Bar seating"}
+        ],
+        "badge": null,
+        "schedule_type": "seasonal",
+        "seasonal_dates": {
+          "start_month": "1",
+          "end_month": "6",
+          "days": ["5"]
+        },
+        "pricing_type": "fixed",
+        "base_price": 25,
+        "addons": [],
+        "accept_vouchers": true,
+        "third_party_vouchers": ["virgin", "redletter"]
+      }
+    },
+    {
+      "post_title": "Work from the Vineyard",
+      "post_type": "experience",
+      "post_status": "publish",
+      "post_content": "<p>Remote work with a view. Bring your laptop and enjoy our WiFi, unlimited coffee, and vineyard vistas.</p>",
+      "acf": {
+        "experience_type": "work_vineyard",
+        "duration": "5 hours (9am-2pm)",
+        "capacity": 8,
+        "enable_waitlist": false,
+        "short_description": "Remote work with unlimited coffee and vineyard views",
+        "whats_included": [
+          {"item": "WiFi access"},
+          {"item": "Unlimited tea & coffee"},
+          {"item": "Pastry"},
+          {"item": "Quiet workspace"}
+        ],
+        "badge": null,
+        "schedule_type": "recurring",
+        "recurring_schedule": [
+          {"day": "2", "time": "09:00:00"},
+          {"day": "3", "time": "09:00:00"},
+          {"day": "4", "time": "09:00:00"},
+          {"day": "5", "time": "09:00:00"}
+        ],
+        "pricing_type": "fixed",
+        "base_price": 15,
+        "addons": [
+          {
+            "name": "Lunch",
+            "description": "Soup & sandwich from our kitchen",
+            "price": 12
+          }
+        ],
+        "accept_vouchers": false
+      }
+    },
+    {
+      "post_title": "Special Tastings",
+      "post_type": "experience",
+      "post_status": "publish",
+      "post_content": "<p>Themed tasting events featuring wines from around the world or focused on specific styles. Check our calendar for upcoming special tastings.</p>",
+      "acf": {
+        "experience_type": "special_tastings",
+        "duration": "1.5 hours",
+        "capacity": 15,
+        "enable_waitlist": true,
+        "short_description": "Themed tastings: Italian wines, sparkling selections & more",
+        "whats_included": [
+          {"item": "Themed wine selection"},
+          {"item": "Expert guidance"},
+          {"item": "Tasting notes"}
+        ],
+        "badge": null,
+        "schedule_type": "adhoc",
+        "pricing_type": "fixed",
+        "base_price": 35,
+        "addons": [],
+        "accept_vouchers": false
+      }
+    },
+    {
+      "post_title": "WSET Courses",
+      "post_type": "experience",
+      "post_status": "publish",
+      "post_content": "<p>Professional wine education courses held at Stanlake Park. Courses are run by an external wine school.</p>",
+      "acf": {
+        "experience_type": "wset_courses",
+        "duration": "Varies by level",
+        "capacity": 0,
+        "enable_waitlist": false,
+        "short_description": "Professional wine education at our estate",
+        "whats_included": [],
+        "badge": null,
+        "schedule_type": "external",
+        "external_link": "https://example-wine-school.com/courses",
+        "pricing_type": "variable",
+        "accept_vouchers": false
+      }
+    }
+  ],
+  "woocommerce_settings": {
+    "note": "WooCommerce setup para bookings",
+    "product_type": "booking",
+    "required_plugins": [
+      "WooCommerce",
+      "WooCommerce Bookings",
+      "Advanced Custom Fields PRO"
+    ],
+    "recommended_plugins": [
+      "WooCommerce Deposits",
+      "WooCommerce Follow-Ups"
+    ]
+  }
+}

@@ -1,0 +1,152 @@
+[
+    {
+        "key": "group_65c3f1a2b3c4d",
+        "title": "Wine Details",
+        "fields": [
+            {
+                "key": "field_65c3f1a2b3c4e",
+                "label": "Price",
+                "name": "price",
+                "type": "text",
+                "instructions": "Ej: £22.00",
+                "required": 1,
+                "wrapper": { "width": "33" }
+            },
+            {
+                "key": "field_65c3f1a2b3c4f",
+                "label": "Vintage",
+                "name": "vintage",
+                "type": "text",
+                "instructions": "Ej: 2023",
+                "wrapper": { "width": "33" }
+            },
+            {
+                "key": "field_65c3f1a2b3c50",
+                "label": "Alcohol %",
+                "name": "alcohol",
+                "type": "text",
+                "instructions": "Ej: 11.5%",
+                "wrapper": { "width": "33" }
+            },
+            {
+                "key": "field_65c3f1a2b3c51",
+                "label": "Grapes",
+                "name": "grapes",
+                "type": "text"
+            },
+            {
+                "key": "field_65c3f1a2b3c52",
+                "label": "Pairing",
+                "name": "pairing",
+                "type": "textarea",
+                "rows": 2
+            }
+        ],
+        "location": [
+            [
+                {
+                    "param": "post_type",
+                    "operator": "==",
+                    "value": "wine"
+                }
+            ]
+        ],
+        "menu_order": 0,
+        "position": "normal",
+        "style": "default",
+        "label_placement": "top",
+        "instruction_placement": "label",
+        "active": true,
+        "show_in_rest": 1,
+        "show_in_graphql": 1,
+        "graphql_field_name": "wineFields"
+    },
+    {
+        "key": "group_65c3f1a2b3c53",
+        "title": "Venue Details",
+        "fields": [
+            {
+                "key": "field_65c3f1a2b3c54",
+                "label": "Subtitle",
+                "name": "subtitle",
+                "type": "text"
+            },
+            {
+                "key": "field_65c3f1a2b3c55",
+                "label": "Capacity",
+                "name": "capacity",
+                "type": "text"
+            },
+            {
+                "key": "field_65c3f1a2b3c56",
+                "label": "Features",
+                "name": "features",
+                "type": "repeater",
+                "layout": "table",
+                "button_label": "Add Feature",
+                "sub_fields": [
+                    {
+                        "key": "field_65c3f1a2b3c57",
+                        "label": "Item",
+                        "name": "item",
+                        "type": "text"
+                    }
+                ]
+            }
+        ],
+        "location": [
+            [
+                {
+                    "param": "post_type",
+                    "operator": "==",
+                    "value": "venue"
+                }
+            ]
+        ],
+        "active": true,
+        "show_in_graphql": 1,
+        "graphql_field_name": "venueFields"
+    },
+    {
+        "key": "group_65c3f1a2b3c58",
+        "title": "Experience Info Details",
+        "fields": [
+            {
+                "key": "field_65c3f1a2b3c59",
+                "label": "Badge",
+                "name": "badge",
+                "type": "text"
+            },
+            {
+                "key": "field_65c3f1a2b3c5a",
+                "label": "Price",
+                "name": "price",
+                "type": "text"
+            },
+            {
+                "key": "field_65c3f1a2b3c5b",
+                "label": "Duration",
+                "name": "duration",
+                "type": "text"
+            },
+            {
+                "key": "field_65c3f1a2b3c5c",
+                "label": "Availability",
+                "name": "availability",
+                "type": "text"
+            }
+        ],
+        "location": [
+            [
+                {
+                    "param": "post_type",
+                    "operator": "==",
+                    "value": "experience_info"
+                }
+            ]
+        ],
+        "active": true,
+        "show_in_graphql": 1,
+        "graphql_field_name": "experienceFields"
+    }
+]

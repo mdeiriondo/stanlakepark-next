@@ -1,0 +1,582 @@
+{
+  "acf_field_groups": [
+    {
+      "key": "group_wine_details",
+      "title": "Wine Details",
+      "fields": [
+        {
+          "key": "field_vintage",
+          "label": "Vintage",
+          "name": "vintage",
+          "type": "number",
+          "placeholder": "2023"
+        },
+        {
+          "key": "field_grape_varieties",
+          "label": "Grape Varieties",
+          "name": "grape_varieties",
+          "type": "text",
+          "placeholder": "Chardonnay, Pinot Noir"
+        },
+        {
+          "key": "field_tasting_notes",
+          "label": "Tasting Notes",
+          "name": "tasting_notes",
+          "type": "wysiwyg",
+          "toolbar": "basic"
+        },
+        {
+          "key": "field_alcohol_percentage",
+          "label": "Alcohol %",
+          "name": "alcohol_percentage",
+          "type": "number",
+          "step": 0.1,
+          "min": 0,
+          "max": 20,
+          "placeholder": "12.5"
+        },
+        {
+          "key": "field_awards",
+          "label": "Awards & Accolades",
+          "name": "awards",
+          "type": "repeater",
+          "layout": "table",
+          "button_label": "Add Award",
+          "sub_fields": [
+            {
+              "key": "field_award_name",
+              "label": "Award",
+              "name": "award",
+              "type": "text",
+              "required": 1
+            },
+            {
+              "key": "field_award_year",
+              "label": "Year",
+              "name": "year",
+              "type": "number",
+              "required": 1
+            },
+            {
+              "key": "field_award_medal",
+              "label": "Medal/Rating",
+              "name": "medal",
+              "type": "select",
+              "choices": {
+                "gold": "Gold",
+                "silver": "Silver",
+                "bronze": "Bronze",
+                "90plus": "90+ Points"
+              }
+            }
+          ]
+        },
+        {
+          "key": "field_bottle_size",
+          "label": "Bottle Size",
+          "name": "bottle_size",
+          "type": "select",
+          "choices": {
+            "375ml": "375ml (Half Bottle)",
+            "750ml": "750ml (Standard)",
+            "1500ml": "1500ml (Magnum)"
+          },
+          "default_value": "750ml"
+        },
+        {
+          "key": "field_food_pairing",
+          "label": "Food Pairing Suggestions",
+          "name": "food_pairing",
+          "type": "textarea",
+          "rows": 3
+        }
+      ],
+      "location": [
+        [
+          {
+            "param": "post_type",
+            "operator": "==",
+            "value": "wine"
+          }
+        ]
+      ]
+    },
+    {
+      "key": "group_experience_editorial",
+      "title": "Experience Info (Editorial Only - Booking via Ticket Tailor)",
+      "fields": [
+        {
+          "key": "field_ticket_tailor_event_id",
+          "label": "Ticket Tailor Event ID",
+          "name": "ticket_tailor_event_id",
+          "type": "text",
+          "instructions": "El ID del evento en Ticket Tailor. Ejemplo: '12345'. Dejar vacío si no tiene booking (ej. WSET courses external)",
+          "placeholder": "12345"
+        },
+        {
+          "key": "field_experience_type",
+          "label": "Experience Type (Display)",
+          "name": "experience_type",
+          "type": "select",
+          "choices": {
+            "wine_tour_tasting": "Wine Tour & Tasting",
+            "wine_cheese_tour": "Wine & Cheese Tour",
+            "wine_cream_tea": "Wine & Cream Tea Tour",
+            "wine_cheese_tasting": "Wine & Cheese Tasting",
+            "work_vineyard": "Work from the Vineyard",
+            "special_tastings": "Special Tastings",
+            "special_events": "Special Events",
+            "wset_courses": "WSET Courses"
+          }
+        },
+        {
+          "key": "field_duration_display",
+          "label": "Duration (Display Text)",
+          "name": "duration_display",
+          "type": "text",
+          "placeholder": "1.5 hours"
+        },
+        {
+          "key": "field_short_description",
+          "label": "Short Description",
+          "name": "short_description",
+          "type": "textarea",
+          "maxlength": 200,
+          "rows": 3,
+          "placeholder": "Brief description for cards (max 200 chars)"
+        },
+        {
+          "key": "field_whats_included",
+          "label": "What's Included",
+          "name": "whats_included",
+          "type": "wysiwyg",
+          "toolbar": "basic",
+          "instructions": "Lista de lo que incluye la experiencia (tour, tastings, etc.)"
+        },
+        {
+          "key": "field_badge",
+          "label": "Badge (Optional)",
+          "name": "badge",
+          "type": "select",
+          "allow_null": 1,
+          "choices": {
+            "most_popular": "⭐ Most Popular",
+            "popular": "⭐ Popular",
+            "seasonal": "🌸 Seasonal",
+            "new": "✨ New",
+            "limited": "⚡ Limited Spots"
+          }
+        },
+        {
+          "key": "field_gallery",
+          "label": "Photo Gallery",
+          "name": "gallery",
+          "type": "gallery",
+          "return_format": "array",
+          "preview_size": "medium",
+          "library": "all"
+        },
+        {
+          "key": "field_faq",
+          "label": "FAQ",
+          "name": "faq",
+          "type": "repeater",
+          "layout": "block",
+          "button_label": "Add Question",
+          "sub_fields": [
+            {
+              "key": "field_question",
+              "label": "Question",
+              "name": "question",
+              "type": "text",
+              "required": 1
+            },
+            {
+              "key": "field_answer",
+              "label": "Answer",
+              "name": "answer",
+              "type": "textarea",
+              "required": 1,
+              "rows": 3
+            }
+          ]
+        },
+        {
+          "key": "field_external_link",
+          "label": "External Booking Link (for WSET, etc.)",
+          "name": "external_link",
+          "type": "url",
+          "instructions": "Solo para experiencias sin Ticket Tailor (ej. WSET courses). Si está completo, se muestra botón 'External Site' en lugar de widget.",
+          "placeholder": "https://wine-school.com/courses"
+        }
+      ],
+      "location": [
+        [
+          {
+            "param": "post_type",
+            "operator": "==",
+            "value": "experience_info"
+          }
+        ]
+      ]
+    },
+    {
+      "key": "group_venue_details",
+      "title": "Venue Details",
+      "fields": [
+        {
+          "key": "field_capacity",
+          "label": "Max Capacity",
+          "name": "capacity",
+          "type": "number",
+          "placeholder": "150"
+        },
+        {
+          "key": "field_venue_features",
+          "label": "Features",
+          "name": "features",
+          "type": "checkbox",
+          "choices": {
+            "indoor": "Indoor Space",
+            "outdoor": "Outdoor Space",
+            "licensed": "Licensed Bar",
+            "catering": "In-house Catering",
+            "parking": "Parking Available",
+            "accessible": "Wheelchair Accessible",
+            "accommodation": "On-site Accommodation"
+          }
+        },
+        {
+          "key": "field_dimensions",
+          "label": "Dimensions",
+          "name": "dimensions",
+          "type": "text",
+          "placeholder": "20m x 15m"
+        },
+        {
+          "key": "field_gallery",
+          "label": "Photo Gallery",
+          "name": "gallery",
+          "type": "gallery",
+          "return_format": "array"
+        },
+        {
+          "key": "field_floor_plan",
+          "label": "Floor Plan",
+          "name": "floor_plan",
+          "type": "image",
+          "return_format": "array"
+        }
+      ],
+      "location": [
+        [
+          {
+            "param": "post_type",
+            "operator": "==",
+            "value": "venue"
+          }
+        ]
+      ]
+    },
+    {
+      "key": "group_accommodation_details",
+      "title": "Accommodation Details",
+      "fields": [
+        {
+          "key": "field_sleeps",
+          "label": "Sleeps",
+          "name": "sleeps",
+          "type": "number",
+          "placeholder": "4"
+        },
+        {
+          "key": "field_bedrooms",
+          "label": "Bedrooms",
+          "name": "bedrooms",
+          "type": "number",
+          "placeholder": "2"
+        },
+        {
+          "key": "field_bathrooms",
+          "label": "Bathrooms",
+          "name": "bathrooms",
+          "type": "number",
+          "placeholder": "2"
+        },
+        {
+          "key": "field_amenities",
+          "label": "Amenities",
+          "name": "amenities",
+          "type": "checkbox",
+          "choices": {
+            "wifi": "WiFi",
+            "kitchen": "Full Kitchen",
+            "parking": "Private Parking",
+            "garden": "Private Garden",
+            "fireplace": "Fireplace",
+            "bbq": "BBQ",
+            "hot_tub": "Hot Tub"
+          }
+        },
+        {
+          "key": "field_gallery",
+          "label": "Photo Gallery",
+          "name": "gallery",
+          "type": "gallery",
+          "return_format": "array"
+        },
+        {
+          "key": "field_booking_link",
+          "label": "Booking Link (External)",
+          "name": "booking_link",
+          "type": "url",
+          "instructions": "Link to Airbnb, Booking.com, or direct booking system",
+          "placeholder": "https://..."
+        }
+      ],
+      "location": [
+        [
+          {
+            "param": "post_type",
+            "operator": "==",
+            "value": "accommodation"
+          }
+        ]
+      ]
+    }
+  ],
+  "custom_post_types": [
+    {
+      "key": "wine",
+      "label": "Wines",
+      "labels": {
+        "singular": "Wine",
+        "plural": "Wines"
+      },
+      "public": true,
+      "has_archive": true,
+      "rewrite": {
+        "slug": "wines",
+        "with_front": false
+      },
+      "supports": [
+        "title",
+        "editor",
+        "thumbnail",
+        "excerpt"
+      ],
+      "menu_icon": "dashicons-products",
+      "show_in_rest": true,
+      "rest_base": "wines",
+      "taxonomies": [
+        "wine_type",
+        "wine_category"
+      ]
+    },
+    {
+      "key": "experience_info",
+      "label": "Experience Info",
+      "labels": {
+        "singular": "Experience Info",
+        "plural": "Experience Info"
+      },
+      "public": true,
+      "has_archive": false,
+      "rewrite": {
+        "slug": "experiences",
+        "with_front": false
+      },
+      "supports": [
+        "title",
+        "editor",
+        "thumbnail",
+        "excerpt"
+      ],
+      "menu_icon": "dashicons-tickets-alt",
+      "show_in_rest": true,
+      "rest_base": "experience_info",
+      "description": "Editorial content only - bookings handled by Ticket Tailor"
+    },
+    {
+      "key": "venue",
+      "label": "Venues",
+      "labels": {
+        "singular": "Venue",
+        "plural": "Venues"
+      },
+      "public": true,
+      "has_archive": false,
+      "rewrite": {
+        "slug": "weddings/venues",
+        "with_front": false
+      },
+      "supports": [
+        "title",
+        "editor",
+        "thumbnail"
+      ],
+      "menu_icon": "dashicons-admin-home",
+      "show_in_rest": true,
+      "rest_base": "venues"
+    },
+    {
+      "key": "accommodation",
+      "label": "Accommodation",
+      "labels": {
+        "singular": "Accommodation",
+        "plural": "Accommodation"
+      },
+      "public": true,
+      "has_archive": true,
+      "rewrite": {
+        "slug": "stay",
+        "with_front": false
+      },
+      "supports": [
+        "title",
+        "editor",
+        "thumbnail",
+        "excerpt"
+      ],
+      "menu_icon": "dashicons-admin-multisite",
+      "show_in_rest": true,
+      "rest_base": "accommodation"
+    }
+  ],
+  "taxonomies": [
+    {
+      "key": "wine_type",
+      "label": "Wine Type",
+      "object_type": "wine",
+      "hierarchical": true,
+      "show_in_rest": true,
+      "rewrite": {
+        "slug": "wine-type"
+      }
+    },
+    {
+      "key": "wine_category",
+      "label": "Wine Category",
+      "object_type": "wine",
+      "hierarchical": false,
+      "show_in_rest": true,
+      "rewrite": {
+        "slug": "wine-category"
+      }
+    }
+  ],
+  "example_content": [
+    {
+      "post_type": "experience_info",
+      "post_title": "Wine Tour & Tasting",
+      "post_status": "publish",
+      "post_content": "<p>Explore our historic vineyard and taste award-winning English wines. Walk through our beautiful grounds, learn about the winemaking process from our expert team, and sample our finest selections in our 17th-century barn.</p>\n\n<p>Your journey begins at the Wine Bar, where you'll meet your guide. From there, we'll walk through the vineyard, discussing the unique terroir of the Thames Valley and our sustainable viticulture practices. The tour concludes with a guided tasting of five of our premium wines.</p>",
+      "post_excerpt": "Our most popular experience - vineyard tour with five wine tastings",
+      "acf": {
+        "ticket_tailor_event_id": "12345",
+        "experience_type": "wine_tour_tasting",
+        "duration_display": "1.5 hours",
+        "short_description": "Explore our historic vineyard and taste award-winning English wines",
+        "whats_included": "<ul>\n<li>Guided vineyard tour</li>\n<li>Historic winery visit</li>\n<li>5 wine tastings</li>\n<li>Souvenir glass to take home</li>\n</ul>",
+        "badge": "most_popular",
+        "faq": [
+          {
+            "question": "What should I wear?",
+            "answer": "Comfortable walking shoes recommended as we'll tour the vineyard. Weather-appropriate clothing - tours run rain or shine!"
+          },
+          {
+            "question": "Is the tour wheelchair accessible?",
+            "answer": "The winery and tasting room are fully accessible. Vineyard paths are grass/gravel - please contact us if you need assistance."
+          },
+          {
+            "question": "Can I buy wine?",
+            "answer": "Absolutely! Our Wine Bar & Shop is open after your tour with exclusive discounts for tour guests."
+          }
+        ],
+        "external_link": ""
+      }
+    },
+    {
+      "post_type": "experience_info",
+      "post_title": "WSET Courses",
+      "post_status": "publish",
+      "post_content": "<p>Professional wine education courses held at Stanlake Park. Courses are run by Thames Valley Wine School, an accredited WSET program provider.</p>\n\n<p>Available levels include WSET Level 1, Level 2, and Level 3. All courses include tastings, course materials, and examination.</p>",
+      "post_excerpt": "Professional wine education at our estate",
+      "acf": {
+        "ticket_tailor_event_id": "",
+        "experience_type": "wset_courses",
+        "duration_display": "Varies by level",
+        "short_description": "Professional wine education courses (WSET Levels 1-3)",
+        "whats_included": "<ul>\n<li>Expert instruction</li>\n<li>Course materials</li>\n<li>Wine tastings</li>\n<li>WSET examination</li>\n</ul>",
+        "badge": null,
+        "faq": [
+          {
+            "question": "How do I book a WSET course?",
+            "answer": "Courses are managed by Thames Valley Wine School. Click the link below to see available dates and book directly with them."
+          }
+        ],
+        "external_link": "https://thamesvalleywineschool.com/courses"
+      }
+    },
+    {
+      "post_type": "wine",
+      "post_title": "Stanlake Park Bacchus 2023",
+      "post_status": "publish",
+      "post_content": "<p>Our flagship white wine, Bacchus is a fresh and aromatic English varietal perfectly suited to the Thames Valley terroir. This vintage showcases classic elderflower and gooseberry notes with a crisp, refreshing finish.</p>",
+      "post_excerpt": "Fresh and aromatic English white wine",
+      "acf": {
+        "vintage": 2023,
+        "grape_varieties": "100% Bacchus",
+        "tasting_notes": "<p><strong>Nose:</strong> Elderflower, gooseberry, and fresh herbs</p>\n<p><strong>Palate:</strong> Crisp acidity with flavors of green apple, lime zest, and a hint of nettle</p>\n<p><strong>Finish:</strong> Clean and refreshing with lingering citrus notes</p>",
+        "alcohol_percentage": 11.5,
+        "awards": [
+          {
+            "award": "International Wine Challenge",
+            "year": 2024,
+            "medal": "silver"
+          }
+        ],
+        "bottle_size": "750ml",
+        "food_pairing": "Perfect with seafood, salads, or as an aperitif. Excellent with oysters, grilled fish, or fresh goat cheese."
+      }
+    }
+  ],
+  "wordpress_settings": {
+    "note": "WordPress sirve SOLO contenido editorial, NO bookings (esos van a Ticket Tailor)",
+    "required_plugins": [
+      "WooCommerce (para shop de vinos físicos)",
+      "Advanced Custom Fields PRO",
+      "ACF to REST API"
+    ],
+    "optional_plugins": [
+      "WP GraphQL",
+      "WPGraphQL for ACF",
+      "WP REST Cache"
+    ],
+    "deprecate_plugins": [
+      "Event Tickets Plus - Migrar eventos a Ticket Tailor",
+      "The Events Calendar - Ya no se usa calendario WP"
+    ]
+  },
+  "ticket_tailor_setup": {
+    "note": "Todas las experiencias bookables se crean en Ticket Tailor, no en WordPress",
+    "experiences_to_create": [
+      "Wine Tour & Tasting",
+      "Wine & Cheese Tour",
+      "Wine & Cream Tea Tour",
+      "Wine & Cheese Tasting",
+      "Work from the Vineyard",
+      "Special Tastings (template)",
+      "Special Events (template)"
+    ],
+    "features_enabled": [
+      "Waitlist automática",
+      "Add-ons (cheese boards, etc.)",
+      "Dynamic pricing por día/mes",
+      "Discount codes/vouchers",
+      "Email notifications",
+      "Stripe payments"
+    ],
+    "embed_method": "Widget JavaScript o iFrame en Next.js pages"
+  }
+}
