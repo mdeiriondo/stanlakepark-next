@@ -102,7 +102,7 @@ export async function POST(request: Request) {
         return NextResponse.json(
           {
             error: 'Invalid webhook signature',
-            hint: 'El "Secret" del webhook en WooCommerce debe ser EXACTAMENTE igual a WC_WEBHOOK_SECRET. Prueba: copiar el valor de Vercel y pegarlo en WooCommerce (campo Secret).',
+            hint: 'Revisa: (1) URL exacta: .../woocommerce con "e" final. (2) Secret en WooCommerce = WC_WEBHOOK_SECRET en Vercel. (3) Para probar sin firma: en Vercel pon SKIP_WEBHOOK_VERIFICATION=true, redeploy, guarda el webhook; luego quita esa variable.',
             debug: {
               signatureLength: signature?.length ?? 0,
               bodyLength: body?.length ?? 0,
