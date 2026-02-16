@@ -78,26 +78,46 @@ const GET_EXPERIENCE_BY_URI = `
 
 async function getExperience(slug: string) {
   const endpoint = process.env.WORDPRESS_GRAPHQL_ENDPOINT;
-  if (!endpoint) return null;
+  if (!endpoint) {
+    console.error('WORDPRESS_GRAPHQL_ENDPOINT not configured');
+    return null;
+  }
 
   const runQuery = async (query: string, variables: Record<string, string>) => {
-    const res = await fetch(endpoint, {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ query, variables }),
-      next: { revalidate: 60 },
-    });
-    const json = await res.json();
-    return json as { data?: { experience?: unknown }; errors?: Array<{ message: string }> };
+    try {
+      const res = await fetch(endpoint, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ query, variables }),
+        next: { revalidate: 60 },
+      });
+      
+      if (!res.ok) {
+        console.error(`GraphQL request failed: ${res.status} ${res.statusText}`);
+        return null;
+      }
+      
+      const json = await res.json();
+      
+      if (json.errors) {
+        console.error('GraphQL errors:', json.errors);
+      }
+      
+      return json as { data?: { experience?: unknown }; errors?: Array<{ message: string }> };
+    } catch (error) {
+      console.error('Error fetching experience:', error);
+      return null;
+    }
   };
 
   const uri = `/experiences/${slug}/`;
   const byUri = await runQuery(GET_EXPERIENCE_BY_URI, { uri });
-  if (byUri.data?.experience) return byUri.data.experience;
+  if (byUri?.data?.experience) return byUri.data.experience;
 
   const bySlug = await runQuery(GET_EXPERIENCE_BY_SLUG, { slug });
-  if (bySlug.data?.experience) return bySlug.data.experience;
+  if (bySlug?.data?.experience) return bySlug.data.experience;
 
+  console.warn(`Experience not found for slug: ${slug}`);
   return null;
 }
 
