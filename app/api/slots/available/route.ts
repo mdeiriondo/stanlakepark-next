@@ -16,32 +16,37 @@ export async function GET(request: Request) {
   }
 
   try {
+    // Calcular available basándose en bookings confirmados reales, no solo en el campo booked
+    // Esto asegura que los slots se muestren correctamente incluso si hay desincronización
     let query = `
       SELECT 
-        id,
-        experience_slug,
-        date,
-        time,
-        capacity,
-        booked,
-        (capacity - booked) as available,
-        price_per_person,
-        is_active
-      FROM slots
-      WHERE experience_slug = $1
-        AND is_active = true
-        AND date >= $2
-        AND (capacity - booked) > 0
+        s.id,
+        s.experience_slug,
+        s.date,
+        s.time,
+        s.capacity,
+        s.booked,
+        COALESCE(SUM(b.guests), 0) as actual_booked,
+        (s.capacity - COALESCE(SUM(b.guests), 0)) as available,
+        s.price_per_person,
+        s.is_active
+      FROM slots s
+      LEFT JOIN bookings b ON s.id = b.slot_id AND b.status = 'confirmed'
+      WHERE s.experience_slug = $1
+        AND s.is_active = true
+        AND s.date >= $2
+      GROUP BY s.id, s.experience_slug, s.date, s.time, s.capacity, s.booked, s.price_per_person, s.is_active
+      HAVING (s.capacity - COALESCE(SUM(b.guests), 0)) > 0
     `;
 
     const params: (string | number)[] = [experienceSlug, fromDate];
 
     if (toDate) {
-      query += ` AND date <= $3`;
+      query += ` AND s.date <= $3`;
       params.push(toDate);
     }
 
-    query += ` ORDER BY date ASC, time ASC`;
+    query += ` ORDER BY s.date ASC, s.time ASC`;
 
     const { rows } = await sql.query(query, params);
 
