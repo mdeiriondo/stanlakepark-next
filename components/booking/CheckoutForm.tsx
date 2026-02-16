@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useRef } from 'react';
+import { useState, useRef, useCallback } from 'react';
 import { CreditCard } from 'lucide-react';
 import { SquarePayment } from './SquarePayment';
 
@@ -42,13 +42,13 @@ export function CheckoutForm({
     country: 'GB',
   });
 
-  const handlePaymentReady = (tokenizeFn: () => Promise<string>) => {
+  const handlePaymentReady = useCallback((tokenizeFn: () => Promise<string>) => {
     squarePaymentRef.current = { tokenize: tokenizeFn };
-  };
+  }, []);
 
-  const handlePaymentError = (error: string) => {
+  const handlePaymentError = useCallback((error: string) => {
     setPaymentError(error);
-  };
+  }, []);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();

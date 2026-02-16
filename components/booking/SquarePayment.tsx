@@ -38,8 +38,16 @@ export function SquarePayment({
   const [isLoaded, setIsLoaded] = useState(false);
   const cardContainerRef = useRef<HTMLDivElement>(null);
   const cardInstanceRef = useRef<any>(null);
+  const initializedRef = useRef(false);
+  const scriptLoadedRef = useRef(false);
+  const containerIdRef = useRef(`square-card-${Math.random().toString(36).substr(2, 9)}`);
 
   useEffect(() => {
+    // Prevenir múltiples inicializaciones
+    if (initializedRef.current) {
+      return;
+    }
+
     const appId = process.env.NEXT_PUBLIC_SQUARE_APPLICATION_ID;
     const locationId = process.env.NEXT_PUBLIC_SQUARE_LOCATION_ID;
 
@@ -58,7 +66,7 @@ export function SquarePayment({
 
     const loadSquare = async () => {
       // Si ya está cargado, inicializar directamente
-      if (window.Square) {
+      if (window.Square && scriptLoadedRef.current) {
         await initializeSquare(appId, locationId);
         return;
       }
@@ -68,10 +76,19 @@ export function SquarePayment({
         ? 'https://sandbox.web.squarecdn.com/v1/square.js'
         : 'https://web.squarecdn.com/v1/square.js';
 
+      // Verificar si el script ya existe
+      const existingScript = document.querySelector(`script[src="${sdkUrl}"]`);
+      if (existingScript) {
+        scriptLoadedRef.current = true;
+        await initializeSquare(appId, locationId);
+        return;
+      }
+
       const script = document.createElement('script');
       script.src = sdkUrl;
       script.async = true;
       script.onload = async () => {
+        scriptLoadedRef.current = true;
         await initializeSquare(appId, locationId);
       };
       script.onerror = () => {
@@ -82,18 +99,25 @@ export function SquarePayment({
 
     const initializeSquare = async (appId: string, locationId: string) => {
       try {
+        if (initializedRef.current) {
+          console.log('Square already initialized, skipping...');
+          return;
+        }
+
         if (!window.Square) {
           throw new Error('Square SDK not loaded');
         }
 
         console.log('Initializing Square with:', { appId: appId.substring(0, 20) + '...', locationId });
 
+        const containerId = containerIdRef.current;
+
         // Esperar a que el elemento exista en el DOM (con retry)
-        let cardElement = document.getElementById('square-card');
+        let cardElement = document.getElementById(containerId);
         let retries = 0;
         while (!cardElement && retries < 10) {
           await new Promise((resolve) => setTimeout(resolve, 100));
-          cardElement = document.getElementById('square-card');
+          cardElement = document.getElementById(containerId);
           retries++;
         }
 
@@ -101,16 +125,20 @@ export function SquarePayment({
           throw new Error('Card container element not found after waiting');
         }
 
+        // Limpiar contenido previo si existe
+        cardElement.innerHTML = '';
+
         const payments = await window.Square.payments(appId, locationId);
         console.log('Square payments initialized');
         
         const card = await payments.card();
         console.log('Square card instance created');
         
-        await card.attach('#square-card');
+        await card.attach(`#${containerId}`);
         console.log('Square card attached to DOM');
         
         cardInstanceRef.current = card;
+        initializedRef.current = true;
         setIsLoaded(true);
 
         // Exponer función de tokenización
@@ -120,7 +148,8 @@ export function SquarePayment({
           if (result.status === 'OK' && result.token) {
             return result.token;
           }
-          throw new Error(result.errors?.[0]?.message || 'Tokenization failed');
+          const errorMessage = result.errors?.[0]?.message || 'Tokenization failed';
+          throw new Error(errorMessage);
         });
       } catch (err: any) {
         console.error('Square initialization error:', err);
@@ -130,7 +159,20 @@ export function SquarePayment({
     };
 
     loadSquare();
-  }, [onError, onPaymentReady]);
+
+    // Cleanup function
+    return () => {
+      if (cardInstanceRef.current) {
+        try {
+          // Square SDK no tiene un método explícito de destroy, pero limpiamos la referencia
+          cardInstanceRef.current = null;
+        } catch (err) {
+          console.error('Error cleaning up Square instance:', err);
+        }
+      }
+      initializedRef.current = false;
+    };
+  }, []); // Sin dependencias para evitar re-ejecuciones
 
 
   return (
@@ -141,9 +183,10 @@ export function SquarePayment({
       </div>
 
       <div
-        id="square-card"
+        id={containerIdRef.current}
         ref={cardContainerRef}
         className="w-full h-12 border border-dark/10 rounded-lg bg-white"
+        style={{ padding: '8px' }}
       />
 
       {!isLoaded && (
@@ -151,10 +194,7 @@ export function SquarePayment({
       )}
 
       <style jsx global>{`
-        #square-card {
-          padding: 8px;
-        }
-        #square-card iframe {
+        [id^="square-card-"] iframe {
           width: 100% !important;
           height: 100% !important;
         }
