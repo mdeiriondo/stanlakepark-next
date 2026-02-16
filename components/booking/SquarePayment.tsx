@@ -97,6 +97,31 @@ export function SquarePayment({
       document.head.appendChild(script);
     };
 
+    const waitForSquare = (maxWaitMs = 5000, intervalMs = 100): Promise<void> => {
+      return new Promise((resolve, reject) => {
+        if (typeof window === 'undefined') {
+          reject(new Error('Window not available'));
+          return;
+        }
+        if (window.Square) {
+          resolve();
+          return;
+        }
+        const start = Date.now();
+        const t = setInterval(() => {
+          if (window.Square) {
+            clearInterval(t);
+            resolve();
+            return;
+          }
+          if (Date.now() - start >= maxWaitMs) {
+            clearInterval(t);
+            reject(new Error('Square SDK not loaded'));
+          }
+        }, intervalMs);
+      });
+    };
+
     const initializeSquare = async (appId: string, locationId: string) => {
       try {
         if (initializedRef.current) {
@@ -104,9 +129,7 @@ export function SquarePayment({
           return;
         }
 
-        if (!window.Square) {
-          throw new Error('Square SDK not loaded');
-        }
+        await waitForSquare();
 
         console.log('Initializing Square with:', { appId: appId.substring(0, 20) + '...', locationId });
 
