@@ -3,6 +3,7 @@
 import { useState } from 'react';
 import { SlotPicker } from './SlotPicker';
 import { GuestSelector } from './GuestSelector';
+import { CheckoutForm } from './CheckoutForm';
 
 interface BookingFlowWCProps {
   experienceSlug: string;
@@ -23,6 +24,12 @@ export function BookingFlowWC({
 
   const [guests, setGuests] = useState(2);
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [showCheckout, setShowCheckout] = useState(false);
+  const [checkoutData, setCheckoutData] = useState<{
+    productId: number;
+    slotId: number;
+    totalPrice: number;
+  } | null>(null);
 
   const handleSlotSelected = (
     id: number,
@@ -32,6 +39,7 @@ export function BookingFlowWC({
     available?: number
   ) => {
     setSelectedSlot({ id, date, time, pricePerPerson, available });
+    setShowCheckout(false);
   };
 
   const maxGuests = selectedSlot?.available ?? 20;
@@ -58,17 +66,51 @@ export function BookingFlowWC({
         throw new Error(data.error || 'Failed to create booking');
       }
 
-      if (data.checkoutUrl) {
-        window.location.href = data.checkoutUrl;
-      }
+      // En lugar de redirigir, mostrar checkout custom
+      setCheckoutData({
+        productId: data.productId,
+        slotId: data.slotId,
+        totalPrice: selectedSlot.pricePerPerson * guests,
+      });
+      setShowCheckout(true);
     } catch (error) {
       console.error('Error creating booking:', error);
       alert(
         error instanceof Error ? error.message : 'Failed to proceed to checkout'
       );
+    } finally {
       setIsSubmitting(false);
     }
   };
+
+  const handleCheckoutSuccess = () => {
+    alert('Booking confirmed! You will receive a confirmation email shortly.');
+    // Resetear el flujo
+    setShowCheckout(false);
+    setSelectedSlot(null);
+    setGuests(2);
+    setCheckoutData(null);
+  };
+
+  const handleCheckoutCancel = () => {
+    setShowCheckout(false);
+  };
+
+  if (showCheckout && checkoutData && selectedSlot) {
+    return (
+      <CheckoutForm
+        productId={checkoutData.productId}
+        slotId={checkoutData.slotId}
+        totalPrice={checkoutData.totalPrice}
+        experienceName={experienceName}
+        date={selectedSlot.date}
+        time={selectedSlot.time}
+        guests={guests}
+        onSuccess={handleCheckoutSuccess}
+        onCancel={handleCheckoutCancel}
+      />
+    );
+  }
 
   return (
     <div className="space-y-8">
