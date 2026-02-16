@@ -7,11 +7,22 @@ async function processSquarePayment(
   currency: string = 'GBP'
 ) {
   const accessToken = process.env.SQUARE_ACCESS_TOKEN;
-  const locationId = process.env.SQUARE_LOCATION_ID;
+  // Usar SQUARE_LOCATION_ID del servidor (sin NEXT_PUBLIC_)
+  const locationId = process.env.SQUARE_LOCATION_ID || process.env.NEXT_PUBLIC_SQUARE_LOCATION_ID;
 
-  if (!accessToken || !locationId) {
-    throw new Error('Square credentials not configured');
+  if (!accessToken) {
+    throw new Error('SQUARE_ACCESS_TOKEN not configured');
   }
+  if (!locationId) {
+    throw new Error('SQUARE_LOCATION_ID not configured');
+  }
+
+  console.log('Processing Square payment:', {
+    hasAccessToken: !!accessToken,
+    locationId,
+    amount,
+    currency,
+  });
 
   const response = await fetch('https://connect.squareup.com/v2/payments', {
     method: 'POST',
@@ -31,8 +42,14 @@ async function processSquarePayment(
   });
 
   if (!response.ok) {
-    const error = await response.json();
-    throw new Error(error.errors?.[0]?.detail || 'Square payment failed');
+    const errorData = await response.json().catch(() => ({}));
+    const errorMessage = errorData.errors?.[0]?.detail || errorData.errors?.[0]?.code || 'Square payment failed';
+    console.error('Square payment API error:', {
+      status: response.status,
+      statusText: response.statusText,
+      error: errorData,
+    });
+    throw new Error(errorMessage);
   }
 
   const data = await response.json();
@@ -82,12 +99,15 @@ export async function POST(request: Request) {
     let squarePayment;
     try {
       squarePayment = await processSquarePayment(paymentToken, totalAmount);
+      console.log('Square payment successful:', { paymentId: squarePayment?.id });
     } catch (paymentError) {
       console.error('Square payment error:', paymentError);
+      const errorMessage = paymentError instanceof Error ? paymentError.message : 'Unknown error';
       return NextResponse.json(
         {
+          success: false,
           error: 'Payment processing failed',
-          details: paymentError instanceof Error ? paymentError.message : 'Unknown error',
+          details: errorMessage,
         },
         { status: 402 }
       );
@@ -148,8 +168,13 @@ export async function POST(request: Request) {
     });
   } catch (error) {
     console.error('Checkout error:', error);
+    const errorMessage = error instanceof Error ? error.message : 'Unknown error';
     return NextResponse.json(
-      { error: 'Failed to process checkout' },
+      {
+        success: false,
+        error: 'Failed to process checkout',
+        details: errorMessage,
+      },
       { status: 500 }
     );
   }

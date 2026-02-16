@@ -182,21 +182,34 @@ export function SquarePayment({
         <span>Secure payment by Square</span>
       </div>
 
-      <div
-        id={containerIdRef.current}
-        ref={cardContainerRef}
-        className="w-full h-12 border border-dark/10 rounded-lg bg-white"
-        style={{ padding: '8px' }}
-      />
+      <div className="square-payment-container relative z-10 mb-6">
+        <div
+          id={containerIdRef.current}
+          ref={cardContainerRef}
+          className="w-full min-h-[60px] border border-dark/10 rounded-lg bg-white relative"
+          style={{ padding: '12px', boxSizing: 'border-box' }}
+        />
+      </div>
 
       {!isLoaded && (
         <p className="text-sm text-dark/40">Loading payment form...</p>
       )}
 
       <style jsx global>{`
+        [id^="square-card-"] {
+          position: relative;
+          z-index: 1;
+          overflow: visible;
+        }
         [id^="square-card-"] iframe {
           width: 100% !important;
           height: 100% !important;
+          border: none !important;
+        }
+        /* Asegurar que el contenedor de Square tenga suficiente espacio */
+        .square-payment-container {
+          min-height: 60px;
+          margin-bottom: 1rem;
         }
       `}</style>
     </div>

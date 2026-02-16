@@ -16,6 +16,33 @@ interface CheckoutFormProps {
   onCancel: () => void;
 }
 
+// Función helper para formatear fecha
+function formatDate(dateString: string): string {
+  try {
+    const date = new Date(dateString);
+    return date.toLocaleDateString('en-GB', {
+      day: 'numeric',
+      month: 'long',
+      year: 'numeric',
+    });
+  } catch {
+    return dateString;
+  }
+}
+
+// Función helper para formatear hora
+function formatTime(timeString: string): string {
+  try {
+    // Si viene como "14:00:00" o "14:00", convertir a formato legible
+    const [hours, minutes] = timeString.split(':');
+    const hour = parseInt(hours, 10);
+    const minute = minutes || '00';
+    return `${hour.toString().padStart(2, '0')}:${minute}`;
+  } catch {
+    return timeString;
+  }
+}
+
 export function CheckoutForm({
   productId,
   slotId,
@@ -96,7 +123,7 @@ export function CheckoutForm({
       <div className="mb-6">
         <h2 className="text-2xl font-serif text-dark mb-2">Complete Your Booking</h2>
         <p className="text-dark/60 text-sm">
-          {experienceName} • {date} at {time} • {guests} {guests === 1 ? 'guest' : 'guests'}
+          {experienceName} • {formatDate(date)} at {formatTime(time)} • {guests} {guests === 1 ? 'guest' : 'guests'}
         </p>
       </div>
 
@@ -220,16 +247,18 @@ export function CheckoutForm({
         </div>
 
         {/* Payment Section */}
-        <div>
+        <div className="relative">
           <h3 className="font-serif text-xl text-dark mb-4 flex items-center gap-2">
             <CreditCard size={20} />
             Payment
           </h3>
-          <SquarePayment
-            amount={totalPrice}
-            onPaymentReady={handlePaymentReady}
-            onError={handlePaymentError}
-          />
+          <div className="mb-6">
+            <SquarePayment
+              amount={totalPrice}
+              onPaymentReady={handlePaymentReady}
+              onError={handlePaymentError}
+            />
+          </div>
           {paymentError && (
             <p className="mt-2 text-sm text-red-600">{paymentError}</p>
           )}
@@ -256,7 +285,7 @@ export function CheckoutForm({
             <button
               type="submit"
               disabled={isProcessing || !squarePaymentRef.current}
-              className="flex-1 px-6 py-3 bg-brand text-cream rounded-lg font-medium uppercase tracking-widest hover:bg-brand/90 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+              className="flex-1 px-6 py-3 bg-brand text-cream rounded-lg font-medium uppercase tracking-widest hover:bg-brand/90 disabled:opacity-50 disabled:cursor-not-allowed transition-colors whitespace-nowrap text-sm"
             >
               {isProcessing ? 'Processing...' : 'Complete Payment'}
             </button>
