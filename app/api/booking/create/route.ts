@@ -44,15 +44,30 @@ export async function POST(request: Request) {
       );
     }
 
-    const product = await createBookingProduct({
-      experienceName,
-      experienceSlug: slot.experience_slug,
-      date: slot.date,
-      time: slot.time,
-      guests,
-      pricePerPerson: parseFloat(slot.price_per_person),
-      slotId: slot.id,
-    });
+    let product;
+    try {
+      product = await createBookingProduct({
+        experienceName,
+        experienceSlug: slot.experience_slug,
+        date: slot.date,
+        time: slot.time,
+        guests,
+        pricePerPerson: parseFloat(slot.price_per_person),
+        slotId: slot.id,
+      });
+    } catch (productError) {
+      console.error('Product creation failed:', productError);
+      return NextResponse.json(
+        {
+          success: false,
+          error:
+            productError instanceof Error
+              ? productError.message
+              : 'Failed to create product in WooCommerce',
+        },
+        { status: 500 }
+      );
+    }
 
     const checkoutUrl = getCheckoutUrl(product.id);
 
@@ -69,8 +84,17 @@ export async function POST(request: Request) {
     });
   } catch (error) {
     console.error('Error creating booking:', error);
+    const errorMessage =
+      error instanceof Error ? error.message : 'Failed to create booking';
     return NextResponse.json(
-      { error: 'Failed to create booking' },
+      {
+        success: false,
+        error: errorMessage,
+        details:
+          error instanceof Error && error.message
+            ? error.message
+            : 'Unknown error occurred',
+      },
       { status: 500 }
     );
   }

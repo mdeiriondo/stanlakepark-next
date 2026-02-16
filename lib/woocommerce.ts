@@ -74,9 +74,13 @@ export async function createBookingProduct(params: CreateBookingProductParams) {
     });
 
     return response.data as { id: number };
-  } catch (error) {
+  } catch (error: any) {
     console.error('Error creating WooCommerce product:', error);
-    throw new Error('Failed to create booking product');
+    const errorMessage =
+      error?.response?.data?.message ||
+      error?.message ||
+      'Failed to create booking product in WooCommerce';
+    throw new Error(`WooCommerce error: ${errorMessage}`);
   }
 }
 

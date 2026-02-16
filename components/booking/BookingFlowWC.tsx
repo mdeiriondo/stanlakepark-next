@@ -62,8 +62,12 @@ export function BookingFlowWC({
 
       const data = await response.json();
 
-      if (!data.success) {
-        throw new Error(data.error || 'Failed to create booking');
+      if (!response.ok || !data.success) {
+        const errorMsg =
+          data.error ||
+          data.details ||
+          `HTTP ${response.status}: ${response.statusText}`;
+        throw new Error(errorMsg);
       }
 
       // En lugar de redirigir, mostrar checkout custom
