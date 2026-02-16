@@ -12,7 +12,7 @@ interface CheckoutFormProps {
   date: string;
   time: string;
   guests: number;
-  onSuccess: () => void;
+  onSuccess: (orderData?: { orderId?: string | number; orderNumber?: string | number }) => void;
   onCancel: () => void;
 }
 
@@ -110,7 +110,11 @@ export function CheckoutForm({
         throw new Error(data.error || 'Checkout failed');
       }
 
-      onSuccess();
+      // Pasar datos de la orden al callback
+      onSuccess({
+        orderId: data.orderId,
+        orderNumber: data.orderNumber,
+      });
     } catch (error) {
       console.error('Checkout error:', error);
       setPaymentError(error instanceof Error ? error.message : 'Payment failed');

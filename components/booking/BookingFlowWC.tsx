@@ -4,6 +4,7 @@ import { useState } from 'react';
 import { SlotPicker } from './SlotPicker';
 import { GuestSelector } from './GuestSelector';
 import { CheckoutForm } from './CheckoutForm';
+import { BookingConfirmation } from './BookingConfirmation';
 
 interface BookingFlowWCProps {
   experienceSlug: string;
@@ -30,6 +31,11 @@ export function BookingFlowWC({
     slotId: number;
     totalPrice: number;
   } | null>(null);
+  const [orderData, setOrderData] = useState<{
+    orderId?: string | number;
+    orderNumber?: string | number;
+  } | null>(null);
+  const [isConfirmed, setIsConfirmed] = useState(false);
 
   const handleSlotSelected = (
     id: number,
@@ -87,18 +93,31 @@ export function BookingFlowWC({
     }
   };
 
-  const handleCheckoutSuccess = () => {
-    alert('Booking confirmed! You will receive a confirmation email shortly.');
-    // Resetear el flujo
+  const handleCheckoutSuccess = (orderInfo?: { orderId?: string | number; orderNumber?: string | number }) => {
+    // Guardar datos de la orden y mostrar confirmación
+    setOrderData(orderInfo || null);
+    setIsConfirmed(true);
     setShowCheckout(false);
-    setSelectedSlot(null);
-    setGuests(2);
-    setCheckoutData(null);
   };
 
   const handleCheckoutCancel = () => {
     setShowCheckout(false);
   };
+
+  // Mostrar confirmación después del pago exitoso
+  if (isConfirmed && selectedSlot && orderData !== null) {
+    return (
+      <BookingConfirmation
+        experienceName={experienceName}
+        date={selectedSlot.date}
+        time={selectedSlot.time}
+        guests={guests}
+        totalPrice={selectedSlot.pricePerPerson * guests}
+        orderNumber={orderData.orderNumber}
+        orderId={orderData.orderId}
+      />
+    );
+  }
 
   if (showCheckout && checkoutData && selectedSlot) {
     return (
