@@ -52,7 +52,6 @@ Optimized for **Vercel**, leveraging Next.js 16's advanced caching and performan
 ## **✍️ Credits**
 
 - **Lead Designer:** [MdI]
-- **Technical Implementation:** [Gemini]
 
 _Designed with attention to detail and respect for tradition._
 
