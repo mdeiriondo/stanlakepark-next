@@ -71,10 +71,8 @@ export async function POST(request: Request) {
 
     const checkoutUrl = getCheckoutUrl(product.id);
 
-    await sql.query(
-      `UPDATE slots SET booked = booked + $1 WHERE id = $2`,
-      [guests, slotId]
-    );
+    // NO incrementar booked aquí - solo se incrementa cuando el pago se confirma
+    // en el webhook de WooCommerce. Esto evita que slots queden ocupados sin pago.
 
     return NextResponse.json({
       success: true,

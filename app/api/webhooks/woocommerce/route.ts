@@ -169,6 +169,7 @@ export async function POST(request: Request) {
           .join(' ')
           .trim() || 'Guest';
 
+        // Crear el booking
         await sql.query(
           `INSERT INTO bookings (
           slot_id,
@@ -197,6 +198,12 @@ export async function POST(request: Request) {
               payment_method: payload.payment_method_title,
             }),
           ]
+        );
+
+        // Incrementar booked SOLO cuando el pago se confirma
+        await sql.query(
+          `UPDATE slots SET booked = booked + $1 WHERE id = $2`,
+          [parseInt(guests, 10), parseInt(slotId, 10)]
         );
       } catch (itemError) {
         console.error('Webhook: error processing line item', itemError);
