@@ -1,5 +1,10 @@
 import { NextResponse } from 'next/server';
 import { sql } from '@vercel/postgres';
+import { addCorsHeaders, handleOptionsRequest } from '@/lib/api/cors';
+
+export async function OPTIONS() {
+  return handleOptionsRequest();
+}
 
 export async function GET() {
   try {
@@ -65,7 +70,7 @@ export async function GET() {
        ORDER BY occupancy_rate DESC`
     );
     
-    return NextResponse.json({
+    const response = NextResponse.json({
       success: true,
       stats: {
         bookings_today: bookingsToday,
@@ -76,14 +81,18 @@ export async function GET() {
       upcoming_slots: upcomingSlots,
       occupancy_by_experience: occupancyRows,
     });
+    
+    return addCorsHeaders(response);
   } catch (error) {
     console.error('Error fetching stats:', error);
-    return NextResponse.json(
+    const response = NextResponse.json(
       {
         success: false,
         error: error instanceof Error ? error.message : 'Failed to fetch stats',
       },
       { status: 500 }
     );
+    
+    return addCorsHeaders(response);
   }
 }

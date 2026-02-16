@@ -1,18 +1,25 @@
 import { NextResponse } from 'next/server';
 import { sql } from '@vercel/postgres';
+import { addCorsHeaders, handleOptionsRequest } from '@/lib/api/cors';
+
+export async function OPTIONS() {
+  return handleOptionsRequest();
+}
 
 export async function GET() {
   try {
     const { rows } = await sql.query(`SELECT NOW() as current_time`);
     
-    return NextResponse.json({
+    const response = NextResponse.json({
       success: true,
       connected: true,
       server_time: rows[0]?.current_time,
     });
+    
+    return addCorsHeaders(response);
   } catch (error) {
     console.error('Database connection error:', error);
-    return NextResponse.json(
+    const response = NextResponse.json(
       {
         success: false,
         connected: false,
@@ -20,5 +27,7 @@ export async function GET() {
       },
       { status: 500 }
     );
+    
+    return addCorsHeaders(response);
   }
 }

@@ -1,5 +1,10 @@
 import { NextResponse } from 'next/server';
 import { sql } from '@vercel/postgres';
+import { addCorsHeaders, handleOptionsRequest } from '@/lib/api/cors';
+
+export async function OPTIONS() {
+  return handleOptionsRequest();
+}
 
 export async function GET(request: Request) {
   try {
@@ -82,7 +87,7 @@ export async function GET(request: Request) {
     
     const { rows } = await sql.query(query, params);
     
-    return NextResponse.json({
+    const response = NextResponse.json({
       success: true,
       slots: rows,
       pagination: {
@@ -92,14 +97,18 @@ export async function GET(request: Request) {
         total_pages: totalPages,
       },
     });
+    
+    return addCorsHeaders(response);
   } catch (error) {
     console.error('Error fetching slots:', error);
-    return NextResponse.json(
+    const response = NextResponse.json(
       {
         success: false,
         error: error instanceof Error ? error.message : 'Failed to fetch slots',
       },
       { status: 500 }
     );
+    
+    return addCorsHeaders(response);
   }
 }

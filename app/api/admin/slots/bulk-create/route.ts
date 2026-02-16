@@ -1,6 +1,7 @@
 import { NextResponse } from 'next/server';
 import { sql } from '@vercel/postgres';
 import { eachDayOfInterval, format, parseISO } from 'date-fns';
+import { addCorsHeaders, handleOptionsRequest } from '@/lib/api/cors';
 
 // Mapeo de días de la semana
 const DAY_MAP: Record<string, number> = {
@@ -12,6 +13,10 @@ const DAY_MAP: Record<string, number> = {
   friday: 5,
   saturday: 6,
 };
+
+export async function OPTIONS() {
+  return handleOptionsRequest();
+}
 
 export async function POST(request: Request) {
   try {
@@ -28,43 +33,51 @@ export async function POST(request: Request) {
     
     // Validaciones
     if (!experience_slug || !days_of_week || !times || !date_from || !date_until || capacity === undefined || price_per_person === undefined) {
-      return NextResponse.json(
+      const response = NextResponse.json(
         {
           success: false,
           error: 'Missing required fields: experience_slug, days_of_week, times, date_from, date_until, capacity, price_per_person',
         },
         { status: 400 }
       );
+      
+      return addCorsHeaders(response);
     }
     
     if (!Array.isArray(days_of_week) || days_of_week.length === 0) {
-      return NextResponse.json(
+      const response = NextResponse.json(
         {
           success: false,
           error: 'days_of_week must be a non-empty array',
         },
         { status: 400 }
       );
+      
+      return addCorsHeaders(response);
     }
     
     if (!Array.isArray(times) || times.length === 0) {
-      return NextResponse.json(
+      const response = NextResponse.json(
         {
           success: false,
           error: 'times must be a non-empty array',
         },
         { status: 400 }
       );
+      
+      return addCorsHeaders(response);
     }
     
     if (capacity < 1) {
-      return NextResponse.json(
+      const response = NextResponse.json(
         {
           success: false,
           error: 'Capacity must be at least 1',
         },
         { status: 400 }
       );
+      
+      return addCorsHeaders(response);
     }
     
     // Convertir nombres de días a números
@@ -117,20 +130,24 @@ export async function POST(request: Request) {
       }
     }
     
-    return NextResponse.json({
+    const response = NextResponse.json({
       success: true,
       created,
       skipped,
       total,
     });
+    
+    return addCorsHeaders(response);
   } catch (error) {
     console.error('Error bulk creating slots:', error);
-    return NextResponse.json(
+    const response = NextResponse.json(
       {
         success: false,
         error: error instanceof Error ? error.message : 'Failed to bulk create slots',
       },
       { status: 500 }
     );
+    
+    return addCorsHeaders(response);
   }
 }

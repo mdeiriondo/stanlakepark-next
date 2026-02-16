@@ -1,5 +1,10 @@
 import { NextResponse } from 'next/server';
 import { sql } from '@vercel/postgres';
+import { addCorsHeaders, handleOptionsRequest } from '@/lib/api/cors';
+
+export async function OPTIONS() {
+  return handleOptionsRequest();
+}
 
 export async function GET(
   request: Request,
@@ -23,27 +28,33 @@ export async function GET(
     );
     
     if (rows.length === 0) {
-      return NextResponse.json(
+      const response = NextResponse.json(
         {
           success: false,
           error: 'Booking not found',
         },
         { status: 404 }
       );
+      
+      return addCorsHeaders(response);
     }
     
-    return NextResponse.json({
+    const response = NextResponse.json({
       success: true,
       booking: rows[0],
     });
+    
+    return addCorsHeaders(response);
   } catch (error) {
     console.error('Error fetching booking:', error);
-    return NextResponse.json(
+    const response = NextResponse.json(
       {
         success: false,
         error: error instanceof Error ? error.message : 'Failed to fetch booking',
       },
       { status: 500 }
     );
+    
+    return addCorsHeaders(response);
   }
 }

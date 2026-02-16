@@ -1,5 +1,10 @@
 import { NextResponse } from 'next/server';
 import { sql } from '@vercel/postgres';
+import { addCorsHeaders, handleOptionsRequest } from '@/lib/api/cors';
+
+export async function OPTIONS() {
+  return handleOptionsRequest();
+}
 
 export async function GET(
   request: Request,
@@ -14,28 +19,34 @@ export async function GET(
     );
     
     if (rows.length === 0) {
-      return NextResponse.json(
+      const response = NextResponse.json(
         {
           success: false,
           error: 'Slot not found',
         },
         { status: 404 }
       );
+      
+      return addCorsHeaders(response);
     }
     
-    return NextResponse.json({
+    const response = NextResponse.json({
       success: true,
       slot: rows[0],
     });
+    
+    return addCorsHeaders(response);
   } catch (error) {
     console.error('Error fetching slot:', error);
-    return NextResponse.json(
+    const response = NextResponse.json(
       {
         success: false,
         error: error instanceof Error ? error.message : 'Failed to fetch slot',
       },
       { status: 500 }
     );
+    
+    return addCorsHeaders(response);
   }
 }
 
@@ -55,26 +66,30 @@ export async function PUT(
     );
     
     if (existingRows.length === 0) {
-      return NextResponse.json(
+      const response = NextResponse.json(
         {
           success: false,
           error: 'Slot not found',
         },
         { status: 404 }
       );
+      
+      return addCorsHeaders(response);
     }
     
     const currentBooked = parseInt(existingRows[0].booked || '0', 10);
     
     // Validación crítica: no permitir reducir capacity por debajo de booked
     if (capacity !== undefined && capacity < currentBooked) {
-      return NextResponse.json(
+      const response = NextResponse.json(
         {
           success: false,
           error: `Cannot set capacity to ${capacity}. Current bookings: ${currentBooked}`,
         },
         { status: 400 }
       );
+      
+      return addCorsHeaders(response);
     }
     
     // Construir query de actualización dinámica
@@ -113,13 +128,15 @@ export async function PUT(
     }
     
     if (updates.length === 0) {
-      return NextResponse.json(
+      const response = NextResponse.json(
         {
           success: false,
           error: 'No fields to update',
         },
         { status: 400 }
       );
+      
+      return addCorsHeaders(response);
     }
     
     // Agregar updated_at y el id al final
@@ -135,19 +152,23 @@ export async function PUT(
     
     const { rows } = await sql.query(query, values);
     
-    return NextResponse.json({
+    const response = NextResponse.json({
       success: true,
       slot: rows[0],
     });
+    
+    return addCorsHeaders(response);
   } catch (error) {
     console.error('Error updating slot:', error);
-    return NextResponse.json(
+    const response = NextResponse.json(
       {
         success: false,
         error: error instanceof Error ? error.message : 'Failed to update slot',
       },
       { status: 500 }
     );
+    
+    return addCorsHeaders(response);
   }
 }
 
@@ -165,41 +186,49 @@ export async function DELETE(
     );
     
     if (slotRows.length === 0) {
-      return NextResponse.json(
+      const response = NextResponse.json(
         {
           success: false,
           error: 'Slot not found',
         },
         { status: 404 }
       );
+      
+      return addCorsHeaders(response);
     }
     
     const booked = parseInt(slotRows[0].booked || '0', 10);
     
     if (booked > 0) {
-      return NextResponse.json(
+      const response = NextResponse.json(
         {
           success: false,
           error: 'Cannot delete slot with bookings',
         },
         { status: 400 }
       );
+      
+      return addCorsHeaders(response);
     }
     
     await sql.query(`DELETE FROM slots WHERE id = $1`, [id]);
     
-    return NextResponse.json({
+    const response = NextResponse.json({
       success: true,
       message: 'Slot deleted successfully',
     });
+    
+    return addCorsHeaders(response);
   } catch (error) {
     console.error('Error deleting slot:', error);
-    return NextResponse.json(
+    const response = NextResponse.json(
       {
         success: false,
         error: error instanceof Error ? error.message : 'Failed to delete slot',
       },
       { status: 500 }
     );
+    
+    return addCorsHeaders(response);
   }
 }

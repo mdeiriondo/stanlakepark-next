@@ -1,5 +1,10 @@
 import { NextResponse } from 'next/server';
 import { sql } from '@vercel/postgres';
+import { addCorsHeaders, handleOptionsRequest } from '@/lib/api/cors';
+
+export async function OPTIONS() {
+  return handleOptionsRequest();
+}
 
 export async function POST(request: Request) {
   try {
@@ -15,33 +20,39 @@ export async function POST(request: Request) {
     
     // Validaciones
     if (!experience_slug || !date || !time || capacity === undefined || price_per_person === undefined) {
-      return NextResponse.json(
+      const response = NextResponse.json(
         {
           success: false,
           error: 'Missing required fields: experience_slug, date, time, capacity, price_per_person',
         },
         { status: 400 }
       );
+      
+      return addCorsHeaders(response);
     }
     
     if (capacity < 1) {
-      return NextResponse.json(
+      const response = NextResponse.json(
         {
           success: false,
           error: 'Capacity must be at least 1',
         },
         { status: 400 }
       );
+      
+      return addCorsHeaders(response);
     }
     
     if (price_per_person < 0) {
-      return NextResponse.json(
+      const response = NextResponse.json(
         {
           success: false,
           error: 'Price per person must be >= 0',
         },
         { status: 400 }
       );
+      
+      return addCorsHeaders(response);
     }
     
     // Verificar duplicado
@@ -51,13 +62,15 @@ export async function POST(request: Request) {
     );
     
     if (existingRows.length > 0) {
-      return NextResponse.json(
+      const response = NextResponse.json(
         {
           success: false,
           error: 'A slot with the same experience, date, and time already exists',
         },
         { status: 409 }
       );
+      
+      return addCorsHeaders(response);
     }
     
     // Insertar slot
@@ -68,18 +81,22 @@ export async function POST(request: Request) {
       [experience_slug, date, time, capacity, price_per_person, is_active]
     );
     
-    return NextResponse.json({
+    const response = NextResponse.json({
       success: true,
       slot: rows[0],
     });
+    
+    return addCorsHeaders(response);
   } catch (error) {
     console.error('Error creating slot:', error);
-    return NextResponse.json(
+    const response = NextResponse.json(
       {
         success: false,
         error: error instanceof Error ? error.message : 'Failed to create slot',
       },
       { status: 500 }
     );
+    
+    return addCorsHeaders(response);
   }
 }
