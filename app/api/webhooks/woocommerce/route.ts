@@ -114,56 +114,69 @@ export async function POST(request: Request) {
       }
     }
 
-    const payload = JSON.parse(body) as {
-      id: number;
+    let payload: {
+      id?: number;
       number?: string;
-      status: string;
+      status?: string;
       billing?: { email?: string; first_name?: string; last_name?: string };
       payment_method_title?: string;
       line_items?: Array<{
-        total: string;
+        total?: string;
         meta_data?: Array<{ key: string; value: string }>;
       }>;
     };
 
-    if (!['completed', 'processing'].includes(payload.status)) {
+    try {
+      payload = JSON.parse(body) as typeof payload;
+    } catch {
+      return NextResponse.json(
+        { error: 'Invalid JSON body' },
+        { status: 400 }
+      );
+    }
+
+    if (!payload || typeof payload !== 'object') {
+      return NextResponse.json({ message: 'Invalid payload' }, { status: 400 });
+    }
+
+    if (!['completed', 'processing'].includes(payload.status ?? '')) {
       return NextResponse.json({ message: 'Order status not actionable' });
     }
 
     const lineItems = payload.line_items ?? [];
     const billing = payload.billing ?? {};
+    const orderId = payload.id;
 
     for (const item of lineItems) {
-      const meta = item.meta_data ?? [];
-      const getMeta = (key: string) =>
-        meta.find((m: { key: string; value: string }) => m.key === key)?.value;
-      const slotId = getMeta('_booking_slot_id');
-      const guests = getMeta('_booking_guests');
-      const date = getMeta('_booking_date');
-      const time = getMeta('_booking_time');
+      try {
+        const meta = item.meta_data ?? [];
+        const getMeta = (key: string) =>
+          meta.find((m: { key: string; value: string }) => m.key === key)?.value;
+        const slotId = getMeta('_booking_slot_id');
+        const guests = getMeta('_booking_guests');
+        const date = getMeta('_booking_date');
+        const time = getMeta('_booking_time');
 
-      if (!slotId || !guests) continue;
+        if (!slotId || !guests || orderId == null) continue;
 
-      const { rows: existingBookings } = await sql.query(
-        `SELECT id FROM bookings WHERE wc_order_id = $1 AND slot_id = $2`,
-        [payload.id, parseInt(slotId, 10)]
-      );
+        const { rows: existingBookings } = await sql.query(
+          `SELECT id FROM bookings WHERE wc_order_id = $1 AND slot_id = $2`,
+          [orderId, parseInt(slotId, 10)]
+        );
 
-      if (existingBookings.length > 0) {
-        continue;
-      }
+        if (existingBookings.length > 0) continue;
 
-      const bookingReference = generateBookingReference();
-      const customerName = [
-        billing.first_name,
-        billing.last_name,
-      ]
-        .filter(Boolean)
-        .join(' ')
-        .trim() || 'Guest';
+        const bookingReference = generateBookingReference();
+        const customerName = [
+          billing.first_name,
+          billing.last_name,
+        ]
+          .filter(Boolean)
+          .join(' ')
+          .trim() || 'Guest';
 
-      await sql.query(
-        `INSERT INTO bookings (
+        await sql.query(
+          `INSERT INTO bookings (
           slot_id,
           wc_order_id,
           customer_email,
@@ -174,23 +187,27 @@ export async function POST(request: Request) {
           booking_reference,
           metadata
         ) VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9)`,
-        [
-          parseInt(slotId, 10),
-          payload.id,
-          billing.email || '',
-          customerName,
-          parseInt(guests, 10),
-          parseFloat(item.total),
-          'confirmed',
-          bookingReference,
-          JSON.stringify({
-            date,
-            time,
-            order_number: payload.number,
-            payment_method: payload.payment_method_title,
-          }),
-        ]
-      );
+          [
+            parseInt(slotId, 10),
+            orderId,
+            billing.email ?? '',
+            customerName,
+            parseInt(guests, 10),
+            parseFloat(String(item.total ?? 0)) || 0,
+            'confirmed',
+            bookingReference,
+            JSON.stringify({
+              date,
+              time,
+              order_number: payload.number,
+              payment_method: payload.payment_method_title,
+            }),
+          ]
+        );
+      } catch (itemError) {
+        console.error('Webhook: error processing line item', itemError);
+        // No relanzar: aceptamos el webhook y seguimos (evita 500)
+      }
     }
 
     return NextResponse.json({ success: true });
