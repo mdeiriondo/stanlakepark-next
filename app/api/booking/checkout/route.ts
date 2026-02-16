@@ -17,42 +17,81 @@ async function processSquarePayment(
     throw new Error('SQUARE_LOCATION_ID not configured');
   }
 
+  // Determinar si estamos en sandbox basado en el access token
+  // Los tokens de sandbox suelen tener un formato diferente o podemos usar el app ID
+  const appId = process.env.NEXT_PUBLIC_SQUARE_APPLICATION_ID || '';
+  const isSandbox = appId.startsWith('sandbox-');
+  const baseUrl = isSandbox 
+    ? 'https://connect.squareupsandbox.com' 
+    : 'https://connect.squareup.com';
+
+  const amountInCents = Math.round(amount * 100);
+  const idempotencyKey = `booking-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`;
+
+  const requestBody = {
+    source_id: paymentToken,
+    amount_money: {
+      amount: amountInCents,
+      currency,
+    },
+    idempotency_key: idempotencyKey,
+  };
+
   console.log('Processing Square payment:', {
-    hasAccessToken: !!accessToken,
+    baseUrl,
+    isSandbox,
     locationId,
     amount,
+    amountInCents,
     currency,
+    hasToken: !!paymentToken,
+    tokenPrefix: paymentToken?.substring(0, 20),
   });
 
-  const response = await fetch('https://connect.squareup.com/v2/payments', {
+  const response = await fetch(`${baseUrl}/v2/payments`, {
     method: 'POST',
     headers: {
       'Square-Version': '2024-01-18',
       Authorization: `Bearer ${accessToken}`,
       'Content-Type': 'application/json',
     },
-    body: JSON.stringify({
-      source_id: paymentToken,
-      amount_money: {
-        amount: Math.round(amount * 100), // Convert to cents
-        currency,
-      },
-      idempotency_key: `booking-${Date.now()}-${Math.random()}`,
-    }),
+    body: JSON.stringify(requestBody),
   });
 
+  const responseText = await response.text();
+  let errorData: any = {};
+  
+  try {
+    errorData = JSON.parse(responseText);
+  } catch {
+    errorData = { raw: responseText };
+  }
+
   if (!response.ok) {
-    const errorData = await response.json().catch(() => ({}));
-    const errorMessage = errorData.errors?.[0]?.detail || errorData.errors?.[0]?.code || 'Square payment failed';
+    const errorMessage = 
+      errorData.errors?.[0]?.detail || 
+      errorData.errors?.[0]?.code || 
+      errorData.errors?.[0]?.field ||
+      `HTTP ${response.status}: ${response.statusText}`;
+    
     console.error('Square payment API error:', {
       status: response.status,
       statusText: response.statusText,
+      url: `${baseUrl}/v2/payments`,
+      requestBody,
       error: errorData,
+      fullResponse: responseText,
     });
+    
     throw new Error(errorMessage);
   }
 
-  const data = await response.json();
+  const data = JSON.parse(responseText);
+  console.log('Square payment successful:', {
+    paymentId: data.payment?.id,
+    status: data.payment?.status,
+  });
+  
   return data.payment;
 }
 
