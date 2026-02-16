@@ -4,6 +4,7 @@ import "./globals.css";
 import CustomCursor from "@/components/ui/CustomCursor";
 import { SpeedInsights } from "@vercel/speed-insights/next";
 import { TransitionProvider } from "@/context/TransitionContext";
+import { CartProvider } from "@/contexts/CartContext";
 import TransitionOverlay from "@/components/layout/TransitionOverlay";
 
 // Cargamos las fuentes con 'swap' para que no haya flash de texto invisible
@@ -37,9 +38,11 @@ export default function RootLayout({
     >
       <body className="font-sans antialiased bg-white text-black selection:bg-[#760235] selection:text-white cursor-none">
         <TransitionProvider>
-          <TransitionOverlay />
-          <CustomCursor />
-          {children}
+          <CartProvider>
+            <TransitionOverlay />
+            <CustomCursor />
+            {children}
+          </CartProvider>
         </TransitionProvider>
         <SpeedInsights />
       </body>

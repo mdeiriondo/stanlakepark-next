@@ -67,12 +67,13 @@ async function getTours() {
     // Filtrar solo las experiencias que pertenecen al grupo "Tours"
     // El nombre del grupo puede ser "Tours", "tours", o similar - verificamos ambos
     const tours = allExperiences.filter((exp: {
+      title?: string;
       experienceGroups?: { nodes?: Array<{ name?: string; slug?: string }> };
     }) => {
       const groups = exp.experienceGroups?.nodes ?? [];
       const isTour = groups.some(
-        (group) => 
-          group.name?.toLowerCase() === 'tours' || 
+        (group) =>
+          group.name?.toLowerCase() === 'tours' ||
           group.slug?.toLowerCase() === 'tours'
       );
       if (isTour) {

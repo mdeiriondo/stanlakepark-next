@@ -32,7 +32,46 @@ export interface CreateBookingProductParams {
   slotId: number;
 }
 
-export async function createBookingProduct(params: CreateBookingProductParams) {
+export interface CreateBookingProductOptions {
+  /** IDs de productos WC ya vendidos (en bookings). No se reutilizan. */
+  soldProductIds?: number[];
+}
+
+/** Busca un producto de booking existente para el mismo slot + guests que no esté vendido. */
+export async function findReusableBookingProduct(
+  slotId: number,
+  guests: number,
+  soldProductIds: number[] = []
+): Promise<{ id: number } | null> {
+  const categoryId = await getBookingsCategoryId();
+  if (categoryId <= 0) return null;
+
+  const set = new Set(soldProductIds);
+  const response = await getWooCommerce().get('products', {
+    category: categoryId,
+    per_page: 100,
+    orderby: 'date',
+    order: 'desc',
+  });
+  const products = (response.data as any[]) ?? [];
+  for (const p of products) {
+    if (set.has(p.id)) continue;
+    const meta = (p.meta_data ?? []) as Array<{ key: string; value: string }>;
+    const getMeta = (key: string) => meta.find((m) => m.key === key)?.value;
+    if (
+      getMeta('_booking_slot_id') === String(slotId) &&
+      getMeta('_booking_guests') === String(guests)
+    ) {
+      return { id: p.id };
+    }
+  }
+  return null;
+}
+
+export async function createBookingProduct(
+  params: CreateBookingProductParams,
+  options: CreateBookingProductOptions = {}
+) {
   const {
     experienceName,
     experienceSlug,
@@ -42,7 +81,15 @@ export async function createBookingProduct(params: CreateBookingProductParams) {
     pricePerPerson,
     slotId,
   } = params;
+  const { soldProductIds = [] } = options;
   const totalPrice = pricePerPerson * guests;
+
+  try {
+    const reusable = await findReusableBookingProduct(slotId, guests, soldProductIds);
+    if (reusable) return reusable;
+  } catch (err) {
+    console.warn('Reuse check failed, creating new product:', err);
+  }
 
   const formattedDate = new Date(date).toLocaleDateString('en-GB', {
     day: 'numeric',

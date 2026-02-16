@@ -118,6 +118,7 @@ export async function POST(request: Request) {
       billing?: { email?: string; first_name?: string; last_name?: string };
       payment_method_title?: string;
       line_items?: Array<{
+        product_id?: number;
         total?: string;
         meta_data?: Array<{ key: string; value: string }>;
       }>;
@@ -169,36 +170,77 @@ export async function POST(request: Request) {
           .join(' ')
           .trim() || 'Guest';
 
-        // Crear el booking
-        await sql.query(
-          `INSERT INTO bookings (
-          slot_id,
-          wc_order_id,
-          customer_email,
-          customer_name,
-          guests,
-          total_price,
-          status,
-          booking_reference,
-          metadata
-        ) VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9)`,
-          [
-            parseInt(slotId, 10),
-            orderId,
-            billing.email ?? '',
-            customerName,
-            parseInt(guests, 10),
-            parseFloat(String(item.total ?? 0)) || 0,
-            'confirmed',
-            bookingReference,
-            JSON.stringify({
-              date,
-              time,
-              order_number: payload.number,
-              payment_method: payload.payment_method_title,
-            }),
-          ]
-        );
+        const wcProductId = item.product_id ?? null;
+
+        // Crear el booking (wc_product_id se usa para no reutilizar productos ya vendidos)
+        try {
+          await sql.query(
+            `INSERT INTO bookings (
+            slot_id,
+            wc_order_id,
+            wc_product_id,
+            customer_email,
+            customer_name,
+            guests,
+            total_price,
+            status,
+            booking_reference,
+            metadata
+          ) VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10)`,
+            [
+              parseInt(slotId, 10),
+              orderId,
+              wcProductId,
+              billing.email ?? '',
+              customerName,
+              parseInt(guests, 10),
+              parseFloat(String(item.total ?? 0)) || 0,
+              'confirmed',
+              bookingReference,
+              JSON.stringify({
+                date,
+                time,
+                order_number: payload.number,
+                payment_method: payload.payment_method_title,
+              }),
+            ]
+          );
+        } catch (insertError: any) {
+          const msg = String(insertError?.message ?? '');
+          if (msg.includes('wc_product_id') && (msg.includes('does not exist') || msg.includes('column'))) {
+            await sql.query(
+              `INSERT INTO bookings (
+              slot_id,
+              wc_order_id,
+              customer_email,
+              customer_name,
+              guests,
+              total_price,
+              status,
+              booking_reference,
+              metadata
+            ) VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9)`,
+              [
+                parseInt(slotId, 10),
+                orderId,
+                billing.email ?? '',
+                customerName,
+                parseInt(guests, 10),
+                parseFloat(String(item.total ?? 0)) || 0,
+                'confirmed',
+                bookingReference,
+                JSON.stringify({
+                  date,
+                  time,
+                  order_number: payload.number,
+                  payment_method: payload.payment_method_title,
+                }),
+              ]
+            );
+          } else {
+            throw insertError;
+          }
+        }
 
         // Incrementar booked SOLO cuando el pago se confirma
         await sql.query(
