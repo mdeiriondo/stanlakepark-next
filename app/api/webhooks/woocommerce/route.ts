@@ -69,11 +69,8 @@ export async function POST(request: Request) {
     // Opción solo para desarrollo: saltar verificación (NUNCA en producción)
     const skipVerify = process.env.SKIP_WEBHOOK_VERIFICATION === 'true';
     if (skipVerify) {
-      if (!body) {
-        return NextResponse.json(
-          { error: 'Empty body', hint: 'WooCommerce sends order JSON in the body' },
-          { status: 400 }
-        );
+      if (!body || !body.trim()) {
+        return NextResponse.json({ success: true, message: 'Webhook OK (test ping)' });
       }
     } else {
       if (!signature) {
@@ -129,14 +126,11 @@ export async function POST(request: Request) {
     try {
       payload = JSON.parse(body) as typeof payload;
     } catch {
-      return NextResponse.json(
-        { error: 'Invalid JSON body' },
-        { status: 400 }
-      );
+      return NextResponse.json({ success: true, message: 'Webhook OK (invalid JSON ignored)' });
     }
 
     if (!payload || typeof payload !== 'object') {
-      return NextResponse.json({ message: 'Invalid payload' }, { status: 400 });
+      return NextResponse.json({ success: true, message: 'Webhook OK (no payload to process)' });
     }
 
     if (!['completed', 'processing'].includes(payload.status ?? '')) {
