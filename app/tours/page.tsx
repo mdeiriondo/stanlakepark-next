@@ -1,53 +1,102 @@
-import React from "react";
-import Navbar from "@/components/layout/Navbar";
-import Footer from "@/components/layout/Footer";
-import PageHero from "@/components/layout/PageHero";
-import TourCard from "@/components/ui/TourCard";
-import Reveal from "@/components/ui/Reveal";
+import React from 'react';
+import Navbar from '@/components/layout/Navbar';
+import Footer from '@/components/layout/Footer';
+import PageHero from '@/components/layout/PageHero';
+import Reveal from '@/components/ui/Reveal';
+import TransitionLink from '@/components/ui/TransitionLink';
 
-// Datos estáticos de tours
-const TOURS = [
-  {
-    id: "wine-tour-tasting",
-    title: "Wine Tour & Tasting",
-    price: "£25.00",
-    duration: "2 Hours",
-    groupSize: "20",
-    badge: "Most Popular",
-    image:
-      "https://images.unsplash.com/photo-1506377247377-2a5b3b417ebb?q=80&w=2670&auto=format&fit=crop",
-  },
-  {
-    id: "cheese-wine-tour",
-    title: "Cheese & Wine Tour",
-    price: "£35.00",
-    duration: "2.5 Hours",
-    groupSize: "16",
-    badge: "Foodie Choice",
-    image:
-      "https://images.unsplash.com/photo-1631379578550-7038263db699?q=80&w=2674&auto=format&fit=crop",
-  },
-  {
-    id: "private-tour",
-    title: "Private Group Tour",
-    price: "From £300",
-    duration: "Custom",
-    badge: "Exclusive",
-    image:
-      "https://images.unsplash.com/photo-1559339352-11d035aa65de?q=80&w=2574&auto=format&fit=crop",
-  },
-  {
-    id: "grand-tour",
-    title: "The Grand Tour",
-    price: "£65.00",
-    duration: "4 Hours",
-    groupSize: "10",
-    image:
-      "https://images.unsplash.com/photo-1631379578550-7038263db699?q=80&w=2674&auto=format&fit=crop",
-  },
-];
+const GET_TOURS = `
+  query GetTours {
+    experiences(first: 100) {
+      nodes {
+        slug
+        title
+        formattedPrice
+        experienceDetails {
+          shortDescription
+          basePrice
+          duration
+        }
+        featuredImage {
+          node {
+            sourceUrl
+            altText
+          }
+        }
+        experienceGroups {
+          nodes {
+            name
+            slug
+          }
+        }
+      }
+    }
+  }
+`;
 
-export default function ToursPage() {
+async function getTours() {
+  const endpoint = process.env.WORDPRESS_GRAPHQL_ENDPOINT;
+  if (!endpoint) {
+    console.error('WORDPRESS_GRAPHQL_ENDPOINT not configured');
+    return null;
+  }
+
+  try {
+    const response = await fetch(endpoint, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ query: GET_TOURS }),
+      next: { revalidate: 60 },
+    });
+
+    if (!response.ok) {
+      console.error(`GraphQL request failed: ${response.status} ${response.statusText}`);
+      return null;
+    }
+
+    const json = await response.json();
+    
+    if (json.errors) {
+      console.error('GraphQL errors:', json.errors);
+      return null;
+    }
+
+    const allExperiences = json.data?.experiences?.nodes ?? [];
+    console.log(`Found ${allExperiences.length} total experiences`);
+    
+    // Filtrar solo las experiencias que pertenecen al grupo "Tours"
+    // El nombre del grupo puede ser "Tours", "tours", o similar - verificamos ambos
+    const tours = allExperiences.filter((exp: {
+      experienceGroups?: { nodes?: Array<{ name?: string; slug?: string }> };
+    }) => {
+      const groups = exp.experienceGroups?.nodes ?? [];
+      const isTour = groups.some(
+        (group) => 
+          group.name?.toLowerCase() === 'tours' || 
+          group.slug?.toLowerCase() === 'tours'
+      );
+      if (isTour) {
+        console.log(`Tour found: ${exp.title}`, groups);
+      }
+      return isTour;
+    });
+    
+    console.log(`Found ${tours.length} tours after filtering`);
+    return tours.length > 0 ? tours : null;
+  } catch (error) {
+    console.error('Error fetching tours:', error);
+    return null;
+  }
+}
+
+export const metadata = {
+  title: 'Vineyard Tours | Stanlake Park Wine Estate',
+  description: 'Guided vineyard tours and wine tastings at Stanlake Park.',
+};
+
+export default async function ToursPage() {
+  const tours = await getTours();
+
   return (
     <main className="bg-white min-h-screen">
       <Navbar mode="winery" />
@@ -79,13 +128,81 @@ export default function ToursPage() {
 
       {/* Lista de Tours */}
       <section className="pb-32 px-6 md:px-12 max-w-[1600px] mx-auto">
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
-          {TOURS.map((tour, i) => (
-            <Reveal key={tour.id} delay={i * 100}>
-              <TourCard {...tour} />
-            </Reveal>
-          ))}
-        </div>
+        {tours && tours.length > 0 ? (
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+            {tours.map((tour: {
+              slug: string;
+              title: string;
+              formattedPrice?: string;
+              experienceDetails?: { shortDescription?: string; basePrice?: string; duration?: string };
+              featuredImage?: { node?: { sourceUrl?: string; altText?: string } };
+              experienceGroups?: { nodes?: Array<{ name?: string; slug?: string }> };
+            }, i: number) => {
+              // Usar formattedPrice si existe, sino calcular desde basePrice
+              const price = tour.formattedPrice || 
+                (tour.experienceDetails?.basePrice 
+                  ? `£${parseFloat(tour.experienceDetails.basePrice).toFixed(2)}`
+                  : null);
+              
+              return (
+              <Reveal key={tour.slug} delay={i * 100}>
+                <TransitionLink href={`/experiences/${tour.slug}`} className="block group">
+                  <article className="h-full bg-cream/30 rounded-lg overflow-hidden border border-dark/5 hover:border-brand/30 transition-colors duration-300">
+                    {tour.featuredImage?.node?.sourceUrl && (
+                      <div className="aspect-[4/3] relative overflow-hidden">
+                        <img
+                          src={tour.featuredImage.node.sourceUrl}
+                          alt={tour.featuredImage.node.altText || tour.title}
+                          className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
+                        />
+                      </div>
+                    )}
+                    <div className="p-6">
+                      <h2 className="text-xl font-serif text-dark mb-2 group-hover:text-brand transition-colors">
+                        {tour.title}
+                      </h2>
+                      {price && (
+                        <p className="text-brand font-semibold text-sm mb-2">
+                          {price}
+                          {tour.experienceDetails?.duration && ` • ${tour.experienceDetails.duration}`}
+                        </p>
+                      )}
+                      {tour.experienceDetails?.shortDescription && (
+                        <p className="text-gray-600 text-sm line-clamp-2">
+                          {tour.experienceDetails.shortDescription}
+                        </p>
+                      )}
+                      <span className="inline-block mt-3 text-xs font-bold uppercase tracking-widest text-brand border-b border-brand pb-0.5">
+                        View tour
+                      </span>
+                    </div>
+                  </article>
+                </TransitionLink>
+              </Reveal>
+              );
+            })}
+          </div>
+        ) : (
+          <Reveal>
+            <div className="text-center py-16 max-w-xl mx-auto">
+              <p className="text-gray-600 mb-4">
+                {process.env.WORDPRESS_GRAPHQL_ENDPOINT
+                  ? 'No tours are available yet, or the connection to the content source failed.'
+                  : 'Configure WORDPRESS_GRAPHQL_ENDPOINT in .env.local to load tours from WordPress.'}
+              </p>
+              {process.env.WORDPRESS_GRAPHQL_ENDPOINT && (
+                <p className="text-xs text-gray-400 mb-6">
+                  Endpoint: {process.env.WORDPRESS_GRAPHQL_ENDPOINT}
+                  <br />
+                  Check server logs for detailed error messages.
+                </p>
+              )}
+              <TransitionLink href="/experiences" className="text-brand font-semibold border-b border-brand pb-1">
+                View all experiences
+              </TransitionLink>
+            </div>
+          </Reveal>
+        )}
       </section>
 
       <Footer />
