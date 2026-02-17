@@ -14,6 +14,10 @@ export const metadata = {
   description: 'Explore our collection of award-winning English wines',
 };
 
+// Forzar renderizado dinámico para evitar caché en Vercel
+export const dynamic = 'force-dynamic';
+export const revalidate = 0;
+
 type SearchParams = {
   category?: string;
   tag?: string;

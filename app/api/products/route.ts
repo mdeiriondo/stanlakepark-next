@@ -1,6 +1,10 @@
 import { NextResponse } from 'next/server';
 import { getCachedProductsList } from '@/lib/shop-cache';
 
+// Forzar renderizado dinámico para evitar caché en Vercel
+export const dynamic = 'force-dynamic';
+export const revalidate = 0;
+
 const DEFAULT_PER_PAGE = 12;
 const DEFAULT_PER_PAGE_ALL = 24;
 
@@ -52,7 +56,7 @@ export async function GET(request: Request) {
     });
     res.headers.set(
       'Cache-Control',
-      'private, max-age=86400, s-maxage=86400'
+      'no-store, no-cache, must-revalidate, proxy-revalidate'
     );
     return res;
   } catch (error) {

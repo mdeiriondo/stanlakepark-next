@@ -6,6 +6,10 @@ import Reveal from '@/components/ui/Reveal';
 import TransitionLink from '@/components/ui/TransitionLink';
 import { ArrowLeft } from 'lucide-react';
 
+// Forzar renderizado dinámico para evitar caché en Vercel
+export const dynamic = 'force-dynamic';
+export const revalidate = 0;
+
 async function getProduct(slug: string) {
   const base = process.env.NEXT_PUBLIC_SITE_URL ?? '';
   const url = base ? `${base}/api/products/${slug}` : `/api/products/${slug}`;
