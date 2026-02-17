@@ -23,6 +23,12 @@
   }
 }
 
+/* Garantizar que la marca esté disponible en :root (botones shop, etc.) */
+:root {
+  --color-brand: #760235;
+  --color-brand-dark: #5a0128;
+}
+
 /* 1. OCULTAR CURSOR DEL SISTEMA - Enfoque simplificado */
 @media (min-width: 768px) {
   * {

@@ -3,6 +3,7 @@ import Navbar from '@/components/layout/Navbar';
 import Footer from '@/components/layout/Footer';
 import PageHero from '@/components/layout/PageHero';
 import Reveal from '@/components/ui/Reveal';
+import ExperienceCard from '@/components/ui/ExperienceCard';
 import TransitionLink from '@/components/ui/TransitionLink';
 
 const GET_TOURS = `
@@ -137,49 +138,21 @@ export default async function ToursPage() {
               formattedPrice?: string;
               experienceDetails?: { shortDescription?: string; basePrice?: string; duration?: string };
               featuredImage?: { node?: { sourceUrl?: string; altText?: string } };
-              experienceGroups?: { nodes?: Array<{ name?: string; slug?: string }> };
             }, i: number) => {
-              // Usar formattedPrice si existe, sino calcular desde basePrice
-              const price = tour.formattedPrice || 
-                (tour.experienceDetails?.basePrice 
+              const price = tour.formattedPrice ||
+                (tour.experienceDetails?.basePrice
                   ? `£${parseFloat(tour.experienceDetails.basePrice).toFixed(2)}`
                   : null);
-              
               return (
-              <Reveal key={tour.slug} delay={i * 100}>
-                <TransitionLink href={`/experiences/${tour.slug}`} className="block group">
-                  <article className="h-full bg-cream/30 rounded-lg overflow-hidden border border-dark/5 hover:border-brand/30 transition-colors duration-300">
-                    {tour.featuredImage?.node?.sourceUrl && (
-                      <div className="aspect-[4/3] relative overflow-hidden">
-                        <img
-                          src={tour.featuredImage.node.sourceUrl}
-                          alt={tour.featuredImage.node.altText || tour.title}
-                          className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
-                        />
-                      </div>
-                    )}
-                    <div className="p-6">
-                      <h2 className="text-xl font-serif text-dark mb-2 group-hover:text-brand transition-colors">
-                        {tour.title}
-                      </h2>
-                      {price && (
-                        <p className="text-brand font-semibold text-sm mb-2">
-                          {price}
-                          {tour.experienceDetails?.duration && ` • ${tour.experienceDetails.duration}`}
-                        </p>
-                      )}
-                      {tour.experienceDetails?.shortDescription && (
-                        <p className="text-gray-600 text-sm line-clamp-2">
-                          {tour.experienceDetails.shortDescription}
-                        </p>
-                      )}
-                      <span className="inline-block mt-3 text-xs font-bold uppercase tracking-widest text-brand border-b border-brand pb-0.5">
-                        View tour
-                      </span>
-                    </div>
-                  </article>
-                </TransitionLink>
-              </Reveal>
+                <Reveal key={tour.slug} delay={i * 100}>
+                  <ExperienceCard
+                    slug={tour.slug}
+                    title={tour.title}
+                    price={price || undefined}
+                    image={tour.featuredImage?.node?.sourceUrl}
+                    duration={tour.experienceDetails?.duration}
+                  />
+                </Reveal>
               );
             })}
           </div>

@@ -1,93 +1,114 @@
-import React from "react";
-import Navbar from "@/components/layout/Navbar";
-import Footer from "@/components/layout/Footer";
-import PageHero from "@/components/layout/PageHero";
-import Reveal from "@/components/ui/Reveal";
-import Link from "next/link";
-import { ArrowRight } from "lucide-react";
+import { Suspense } from 'react';
+import ProductGrid from '@/components/shop/ProductGrid';
+import CategoryFilter from '@/components/shop/CategoryFilter';
+import TagCloud from '@/components/shop/TagCloud';
+import SortSelect from '@/components/shop/SortSelect';
+import PriceFilterInline from '@/components/shop/PriceFilterInline';
+import Navbar from '@/components/layout/Navbar';
+import Footer from '@/components/layout/Footer';
+import PageHero from '@/components/layout/PageHero';
+import ShopGridSkeleton from '@/components/shop/ShopGridSkeleton';
 
-// Datos simulados (luego vendrán de tu CMS/WooCommerce)
-const WINES = [
-  {
-    id: "kings-fume",
-    name: "King's Fumé",
-    type: "White · Oak Aged",
-    price: "£22.00",
-    image:
-      "https://images.unsplash.com/photo-1584916201218-f4242ceb4809?q=80&w=2574&auto=format&fit=crop",
-  },
-  {
-    id: "pinot-noir",
-    name: "Pinot Noir",
-    type: "Red · Reserve",
-    price: "£26.00",
-    image:
-      "https://images.unsplash.com/photo-1559563362-c667ba5f5480?q=80&w=2601&auto=format&fit=crop",
-  },
-  {
-    id: "heritage-brut",
-    name: "Heritage Brut",
-    type: "Sparkling",
-    price: "£35.00",
-    image:
-      "https://images.unsplash.com/photo-1536346323287-0b6aa9e7d715?q=80&w=800&h=1200&auto=format&fit=crop",
-  },
-  {
-    id: "bacchus",
-    name: "Bacchus",
-    type: "White · Crisp",
-    price: "£18.00",
-    image:
-      "https://images.unsplash.com/photo-1585553616435-2dc0a54e271d?q=80&w=2574&auto=format&fit=crop",
-  },
-];
+export const metadata = {
+  title: 'Shop | Stanlake Park Wine Estate',
+  description: 'Explore our collection of award-winning English wines',
+};
 
-export default function ShopPage() {
+type SearchParams = {
+  category?: string;
+  tag?: string;
+  min_price?: string;
+  max_price?: string;
+  orderby?: string;
+  order?: string;
+};
+
+const PER_PAGE = 24;
+
+async function fetchShopData(params: SearchParams) {
+  const base = process.env.NEXT_PUBLIC_SITE_URL ?? '';
+  const search = new URLSearchParams();
+  if (params.category) search.set('category', params.category);
+  if (params.tag) search.set('tag', params.tag);
+  if (params.min_price) search.set('min_price', params.min_price);
+  if (params.max_price) search.set('max_price', params.max_price);
+  if (params.orderby) search.set('orderby', params.orderby);
+  if (params.order) search.set('order', params.order);
+  search.set('page', '1');
+  search.set('per_page', String(PER_PAGE));
+  const url = base ? `${base}/api/products?${search}` : `/api/products?${search}`;
+  try {
+    const res = await fetch(url, { cache: 'no-store' });
+    if (!res.ok) return { products: [], price_range: null, total: 0, totalPages: 1 };
+    const data = await res.json();
+    return {
+      products: data.success ? data.products ?? [] : [],
+      price_range: data.price_range ?? null,
+      total: data.total ?? 0,
+      totalPages: data.totalPages ?? 1,
+    };
+  } catch {
+    return { products: [], price_range: null, total: 0, totalPages: 1 };
+  }
+}
+
+async function ShopContent({ params }: { params: SearchParams }) {
+  const { products, price_range, total, totalPages } = await fetchShopData(params);
   return (
-    <main className="bg-white min-h-screen">
+    <>
+      <aside className="lg:col-span-1 space-y-6">
+        <Suspense fallback={<div className="h-64 bg-gray-100 rounded animate-pulse" />}>
+          <CategoryFilter />
+        </Suspense>
+        <TagCloud />
+      </aside>
+      <div className="lg:col-span-3">
+        <div className="mb-6 flex flex-wrap items-center justify-between gap-4">
+          <SortSelect />
+          <PriceFilterInline priceRange={price_range} />
+        </div>
+        <ProductGrid
+            key={[params.category, params.tag, params.min_price, params.max_price, params.orderby, params.order].filter(Boolean).join('-') || 'all'}
+            category={params.category}
+            tag={params.tag}
+            minPrice={params.min_price}
+            maxPrice={params.max_price}
+            orderby={params.orderby}
+            order={params.order}
+            initialProducts={products}
+            initialTotal={total}
+            initialTotalPages={totalPages}
+          />
+      </div>
+    </>
+  );
+}
+
+export default async function ShopPage({
+  searchParams,
+}: {
+  searchParams: Promise<SearchParams>;
+}) {
+  const params = await searchParams;
+
+  return (
+    <main className="min-h-screen bg-white">
       <Navbar mode="winery" />
 
       <PageHero
-        title="The Cellar"
-        subtitle="Shop Our Award-Winning Wines"
+        title="Wine Shop"
+        subtitle="Award-winning English wines from our vineyard in Berkshire"
         image="https://images.unsplash.com/photo-1506377247377-2a5b3b417ebb?q=80&w=2670&auto=format&fit=crop"
       />
 
-      <section className="py-32 px-6 md:px-12 max-w-[1600px] mx-auto">
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-x-8 gap-y-20">
-          {WINES.map((wine, i) => (
-            <Reveal key={wine.id} delay={i * 100}>
-              <Link href={`/shop/${wine.id}`} className="group block">
-                <div className="relative h-[500px] mb-8 overflow-hidden bg-cream/30">
-                  <img
-                    src={wine.image}
-                    alt={wine.name}
-                    className="w-full h-full object-contain p-8 transition-transform duration-700 group-hover:scale-110"
-                  />
-                  {/* Botón flotante al hover */}
-                  <div className="absolute bottom-0 left-0 w-full bg-brand text-white py-4 text-center transform translate-y-full group-hover:translate-y-0 transition-transform duration-500 ease-out">
-                    <span className="text-[10px] font-bold uppercase tracking-widest">
-                      View Details
-                    </span>
-                  </div>
-                </div>
-
-                <div className="text-center">
-                  <span className="text-brand text-[10px] font-bold uppercase tracking-[0.2em] block mb-2">
-                    {wine.type}
-                  </span>
-                  <h3 className="text-3xl font-serif text-dark mb-2 group-hover:text-brand transition-colors">
-                    {wine.name}
-                  </h3>
-                  <span className="text-lg font-light text-gray-500">
-                    {wine.price}
-                  </span>
-                </div>
-              </Link>
-            </Reveal>
-          ))}
+      {/* Main Shop: una sola carga para productos + price_range (slider) */}
+      <div className="max-w-7xl mx-auto px-6 md:px-12 py-12">
+        <div className="grid grid-cols-1 lg:grid-cols-4 gap-8">
+          <Suspense fallback={<ShopGridSkeleton />}>
+            <ShopContent params={params} />
+          </Suspense>
         </div>
-      </section>
+      </div>
 
       <Footer />
     </main>

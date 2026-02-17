@@ -1,5 +1,5 @@
 import { NextResponse } from 'next/server';
-import getWooCommerce from '@/lib/woocommerce';
+import { getCachedProductBySlug } from '@/lib/shop-cache';
 
 export async function GET(
   _request: Request,
@@ -7,40 +7,25 @@ export async function GET(
 ) {
   try {
     const { slug } = await context.params;
+    const result = await getCachedProductBySlug(slug);
 
-    const WooCommerce = getWooCommerce();
-    const response = await WooCommerce.get('products', {
-      slug,
-      status: 'publish',
-    });
-
-    if (!response.data || (response.data as unknown[]).length === 0) {
+    if (!result) {
       return NextResponse.json(
         { error: 'Product not found' },
         { status: 404 }
       );
     }
 
-    const product = (response.data as unknown[])[0] as {
-      id: number;
-      type?: string;
-      [key: string]: unknown;
-    };
-
-    let variations: unknown[] = [];
-    if (product.type === 'variable') {
-      const variationsResponse = await WooCommerce.get(
-        `products/${product.id}/variations`,
-        { per_page: 100 }
-      );
-      variations = (variationsResponse.data as unknown[]) || [];
-    }
-
-    return NextResponse.json({
+    const res = NextResponse.json({
       success: true,
-      product,
-      variations,
+      product: result.product,
+      variations: result.variations,
     });
+    res.headers.set(
+      'Cache-Control',
+      'private, max-age=86400, s-maxage=86400'
+    );
+    return res;
   } catch (error) {
     console.error('Error fetching product:', error);
     return NextResponse.json(

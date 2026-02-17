@@ -1,114 +1,60 @@
 import { NextResponse } from 'next/server';
-import getWooCommerce from '@/lib/woocommerce';
+import { getCachedProductsList } from '@/lib/shop-cache';
 
-const EXCLUDED_CATEGORY_SLUGS = [
-  'bookings',
-  'experiences-booking',
-  'wine-tour-tasting-booking',
-  'wine-cheese-tour-booking',
-  'wine-cheese-tour',
-  'wine-cream-tea-tour-booking',
-  'wine-cheese-tasting-booking',
-  'special-events-booking',
-  'special-tastings-booking',
-  'work-from-vineyard-booking',
-  'wset-courses-booking',
-  'wine-bar',
-  'uncategorised',
-];
-
-interface ProductCategory {
-  id: number;
-  slug?: string;
-  [key: string]: unknown;
-}
-
-interface MetaDataItem {
-  key?: string;
-  value?: string;
-  [key: string]: unknown;
-}
-
-interface WooProduct {
-  categories?: ProductCategory[];
-  meta_data?: MetaDataItem[];
-  [key: string]: unknown;
-}
-
-function isTribeTicket(product: WooProduct): boolean {
-  return (product.meta_data ?? []).some(
-    (m: MetaDataItem) => m.key === '_tribe_wooticket_for_event'
-  );
-}
+const DEFAULT_PER_PAGE = 12;
+const DEFAULT_PER_PAGE_ALL = 24;
 
 export async function GET(request: Request) {
   const { searchParams } = new URL(request.url);
 
-  const params: Record<string, string | number> = {
-    per_page: parseInt(searchParams.get('per_page') || '12'),
-    page: parseInt(searchParams.get('page') || '1'),
-    status: 'publish',
-    stock_status: 'instock',
+  const category = searchParams.get('category');
+  const tag = searchParams.get('tag');
+  const perPageParam = parseInt(searchParams.get('per_page') || '', 10);
+  const pageParam = parseInt(searchParams.get('page') || '1', 10);
+
+  const params = {
+    category: category ?? undefined,
+    tag: tag ?? undefined,
+    min_price: searchParams.get('min_price') ?? undefined,
+    max_price: searchParams.get('max_price') ?? undefined,
+    search: searchParams.get('search') ?? undefined,
+    page: pageParam,
+    per_page: category
+      ? (Number.isNaN(perPageParam) ? DEFAULT_PER_PAGE : Math.min(100, perPageParam))
+      : (Number.isNaN(perPageParam) ? DEFAULT_PER_PAGE_ALL : Math.min(100, perPageParam)),
+    orderby: searchParams.get('orderby') || 'menu_order',
+    order: searchParams.get('order') || 'asc',
   };
 
-  let category = searchParams.get('category');
-  if (category) {
-    const categoryNum = parseInt(category, 10);
-    if (Number.isNaN(categoryNum)) {
-      params.category = category;
-    } else {
-      params.category = categoryNum;
-    }
-  }
-
-  const minPrice = searchParams.get('min_price');
-  const maxPrice = searchParams.get('max_price');
-  if (minPrice) params.min_price = minPrice;
-  if (maxPrice) params.max_price = maxPrice;
-
-  const search = searchParams.get('search');
-  if (search) params.search = search;
-
-  const orderby = searchParams.get('orderby') || 'menu_order';
-  const order = searchParams.get('order') || 'asc';
-  params.orderby = orderby;
-  params.order = order;
-
   try {
-    const WooCommerce = getWooCommerce();
+    const result = await getCachedProductsList(params);
 
-    if (category && Number.isNaN(parseInt(category, 10))) {
-      const catResponse = await WooCommerce.get('products/categories', {
-        slug: category,
-        per_page: 1,
-      });
-      const cats = (catResponse.data as { id: number }[]) ?? [];
-      if (cats.length > 0) {
-        params.category = cats[0].id;
-      }
-    }
+    // Rango de precios: usar el del backend si viene (lista completa) o calcular de la página actual
+    const price_range =
+      result.priceRange ??
+      (() => {
+        const prices = (result.products as { price?: string; regular_price?: string }[])
+          .map((p) => parseFloat(String((p.price ?? p.regular_price ?? '0')).replace(',', '.')))
+          .filter((n) => !Number.isNaN(n) && n >= 0);
+        return prices.length > 0
+          ? { min: Math.min(...prices), max: Math.max(...prices) }
+          : result.products.length > 0
+            ? { min: 0, max: 100 }
+            : null;
+      })();
 
-    const response = await WooCommerce.get('products', params);
-    const data = (response.data as WooProduct[]) ?? [];
-
-    const filteredProducts = data.filter((product: WooProduct) => {
-      if (isTribeTicket(product)) return false;
-      if (!product.categories || product.categories.length === 0) {
-        return false;
-      }
-      const hasExcludedCategory = product.categories.some((cat: ProductCategory) =>
-        EXCLUDED_CATEGORY_SLUGS.includes(cat.slug ?? '')
-      );
-      return !hasExcludedCategory;
-    });
-
-    const perPage = Number(params.per_page);
-    return NextResponse.json({
+    const res = NextResponse.json({
       success: true,
-      products: filteredProducts,
-      total: filteredProducts.length,
-      totalPages: Math.ceil(filteredProducts.length / perPage) || 1,
+      products: result.products,
+      total: result.total,
+      totalPages: result.totalPages,
+      price_range,
     });
+    res.headers.set(
+      'Cache-Control',
+      'private, max-age=86400, s-maxage=86400'
+    );
+    return res;
   } catch (error) {
     console.error('Error fetching products:', error);
     return NextResponse.json(

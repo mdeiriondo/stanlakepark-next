@@ -5,6 +5,8 @@ const config: Config = {
     "./src/pages/**/*.{js,ts,jsx,tsx,mdx}",
     "./src/components/**/*.{js,ts,jsx,tsx,mdx}",
     "./src/app/**/*.{js,ts,jsx,tsx,mdx}",
+    "./app/**/*.{js,ts,jsx,tsx,mdx}",
+    "./components/**/*.{js,ts,jsx,tsx,mdx}",
   ],
   theme: {
     extend: {
@@ -16,11 +18,17 @@ const config: Config = {
         cream: "#F2F0E9",
         dark: "#0a0a0a",
         gold: "#C5A059",
+        stanlake: {
+          burgundy: "#6B2D5C",
+          gold: "#A3814A",
+          cream: "#FAF9F6",
+        },
       },
       fontFamily: {
         // Aquí se hace la magia. Tailwind busca la variable CSS que inyectó Next.js
         serif: ["var(--font-playfair)", "serif"],
         sans: ["var(--font-inter)", "sans-serif"],
+        playfair: ["var(--font-playfair)", "serif"],
       },
       animation: {
         "ken-burns":
