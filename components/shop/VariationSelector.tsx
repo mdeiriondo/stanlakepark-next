@@ -1,17 +1,19 @@
 'use client';
 
+type Variation = {
+  id: number;
+  price: string;
+  stock_status?: string;
+  attributes?: { id?: number; name?: string; option?: string }[];
+};
+
 interface VariationSelectorProps {
   product: {
     attributes?: { name?: string; variation?: boolean | number }[];
   };
-  variations: {
-    id: number;
-    price: string;
-    stock_status?: string;
-    attributes?: { id?: number; name?: string; option?: string }[];
-  }[];
+  variations: Variation[];
   selectedVariation: { id: number } | null;
-  onSelect: (variation: (typeof variations)[0]) => void;
+  onSelect: (variation: Variation) => void;
 }
 
 export default function VariationSelector({
