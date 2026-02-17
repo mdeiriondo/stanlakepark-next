@@ -59,10 +59,17 @@ export default async function ProductPage({
 
   const product = data.product as {
     name: string;
+    slug?: string;
     images?: { src: string }[];
   };
   const imageUrl =
     product.images?.[0]?.src ?? FALLBACK_IMAGE;
+
+  // Asegurar que el producto tenga slug (usar el de la URL si no viene del API)
+  const productWithSlug = {
+    ...data.product,
+    slug: product.slug ?? slug,
+  };
 
   return (
     <main className="bg-white min-h-screen">
@@ -90,7 +97,7 @@ export default async function ProductPage({
         </div>
       </div>
 
-      <ProductDetail product={data.product} variations={data.variations} />
+      <ProductDetail product={productWithSlug} variations={data.variations} />
 
       <Footer />
     </main>

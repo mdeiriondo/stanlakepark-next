@@ -9,6 +9,7 @@ interface ProductDetailProps {
   product: {
     id: number;
     name: string;
+    slug: string;
     type?: string;
     price?: string;
     short_description?: string;
