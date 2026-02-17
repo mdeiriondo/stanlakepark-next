@@ -31,7 +31,7 @@ export async function POST(request: Request) {
       );
     }
 
-    revalidateTag('shop-products');
+    revalidateTag('shop-products', 'max');
 
     return NextResponse.json({
       success: true,
