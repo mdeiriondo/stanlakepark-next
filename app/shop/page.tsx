@@ -8,6 +8,7 @@ import Navbar from '@/components/layout/Navbar';
 import Footer from '@/components/layout/Footer';
 import PageHero from '@/components/layout/PageHero';
 import ShopGridSkeleton from '@/components/shop/ShopGridSkeleton';
+import { getCachedProductsList } from '@/lib/shop-cache';
 
 export const metadata = {
   title: 'Shop | Stanlake Park Wine Estate',
@@ -30,28 +31,38 @@ type SearchParams = {
 const PER_PAGE = 24;
 
 async function fetchShopData(params: SearchParams) {
-  const base = process.env.NEXT_PUBLIC_SITE_URL ?? '';
-  const search = new URLSearchParams();
-  if (params.category) search.set('category', params.category);
-  if (params.tag) search.set('tag', params.tag);
-  if (params.min_price) search.set('min_price', params.min_price);
-  if (params.max_price) search.set('max_price', params.max_price);
-  if (params.orderby) search.set('orderby', params.orderby);
-  if (params.order) search.set('order', params.order);
-  search.set('page', '1');
-  search.set('per_page', String(PER_PAGE));
-  const url = base ? `${base}/api/products?${search}` : `/api/products?${search}`;
   try {
-    const res = await fetch(url, { cache: 'no-store' });
-    if (!res.ok) return { products: [], price_range: null, total: 0, totalPages: 1 };
-    const data = await res.json();
+    const result = await getCachedProductsList({
+      category: params.category,
+      tag: params.tag,
+      min_price: params.min_price,
+      max_price: params.max_price,
+      orderby: params.orderby || 'menu_order',
+      order: params.order || 'asc',
+      page: 1,
+      per_page: PER_PAGE,
+    });
+
+    // Calcular rango de precios
+    const prices = (result.products as { price?: string; regular_price?: string }[])
+      .map((p) => parseFloat(String((p.price ?? p.regular_price ?? '0')).replace(',', '.')))
+      .filter((n) => !Number.isNaN(n) && n >= 0);
+    const price_range =
+      result.priceRange ??
+      (prices.length > 0
+        ? { min: Math.min(...prices), max: Math.max(...prices) }
+        : result.products.length > 0
+          ? { min: 0, max: 100 }
+          : null);
+
     return {
-      products: data.success ? data.products ?? [] : [],
-      price_range: data.price_range ?? null,
-      total: data.total ?? 0,
-      totalPages: data.totalPages ?? 1,
+      products: result.products ?? [],
+      price_range,
+      total: result.total ?? 0,
+      totalPages: result.totalPages ?? 1,
     };
-  } catch {
+  } catch (error) {
+    console.error('Error fetching shop data:', error);
     return { products: [], price_range: null, total: 0, totalPages: 1 };
   }
 }
@@ -94,6 +105,11 @@ export default async function ShopPage({
   searchParams: Promise<SearchParams>;
 }) {
   const params = await searchParams;
+  
+  // Debug: Log params en producción para verificar que se están leyendo correctamente
+  if (process.env.NODE_ENV === 'production') {
+    console.log('[ShopPage] searchParams recibidos:', params);
+  }
 
   return (
     <main className="min-h-screen bg-white">
