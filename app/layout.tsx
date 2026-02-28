@@ -2,7 +2,6 @@ import type { Metadata } from "next";
 import { Inter, Playfair_Display } from "next/font/google";
 import "./globals.css";
 import CustomCursor from "@/components/ui/CustomCursor";
-import { SpeedInsights } from "@vercel/speed-insights/next";
 import { TransitionProvider } from "@/context/TransitionContext";
 import { CartProvider } from "@/contexts/CartContext";
 import TransitionOverlay from "@/components/layout/TransitionOverlay";
@@ -44,7 +43,6 @@ export default function RootLayout({
             {children}
           </CartProvider>
         </TransitionProvider>
-        <SpeedInsights />
       </body>
     </html>
   );
